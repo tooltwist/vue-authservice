@@ -1,8 +1,8 @@
 {
-  "name": "FXKN15ZOR",
+  "name": "fxkn15zor",
   "version": "1.0.2",
   "zmain": "index.js",
-  "main": "dist/FXKN15ZOR.cjs.js",
+  "main": "dist/fxkn15zor.cjs.js",
   "license": "MIT",
   "description": "Test junk",
   "author": "Philip Callender <philcal@mac.com>",

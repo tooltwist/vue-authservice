@@ -1,0 +1,26 @@
+{
+  "name": "FXKN15ZOR",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "description": "Test junk",
+  "author": "Philip Callender <philcal@mac.com>",
+  "private": false,
+  "keywords": [
+    "vue",
+    "tooltwist",
+    "authservice"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tooltwist/FXKN15ZOR.git"
+  },
+  "files": [
+    "dist/"
+  ],
+  "devDependencies": {
+    "bili": "^3.0.14",
+    "rollup-plugin-vue": "^3.0.0",
+    "vue-template-compiler": "^2.5.16"
+  }
+}

@@ -1,11 +1,16 @@
 {
   "name": "FXKN15ZOR",
   "version": "1.0.0",
-  "main": "index.js",
+  "zmain": "index.js",
+  "main": "dist/FXKN15ZOR.cjs.js",
   "license": "MIT",
   "description": "Test junk",
   "author": "Philip Callender <philcal@mac.com>",
   "private": false,
+  "scripts": {
+    "build": "yarn bili index.js --plugin vue",
+    "patch-release": "npm version patch && npm publish && git push --follow-tags"
+  },
   "keywords": [
     "vue",
     "tooltwist",

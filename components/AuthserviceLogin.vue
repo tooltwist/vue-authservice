@@ -5,10 +5,6 @@
 
   .authservice-login
     //div(:text="($authservice.user!=null) ? (headerName) : (signin ? 'Sign in' : 'Login')" right)
-    //
-    //  This component uses bootstrap-vue
-    //  (See https://bootstrap-vue.js.org/docs)
-    //
 
     .card(v-if="mode === 'login'" href="")
       header.card-header
@@ -39,45 +35,54 @@
             a.button.social-button.is-small.is-secondary(:variant="'secondary'" v-on:click="githubLogin()" tabindex="38")
               i.fa.fa-twitter.has-text-grey
               | &nbsp; Login with Twitter
-              i.fas.fa-envelope-o.has-text-black
             br
             br
             b - OR -
             br
-            br
 
 
           .field
-            p.control.has-icons-left.has-icons-right
-              input.input(type="email" placeholder="Email")
-              .icon.is-small.is-left
-                i.fas.fa-envelope
-              .icon.is-small.is-right
-                i.fas.fa-check
-
-
+            label.label User Name
+            .control.has-icons-left
+              input.input(v-model.trim="username" type="text" v-on:keydown.native="keyhandler" placeholder="Enter your User Name")
+              span.icon.is-small.is-left
+                i.fa.fa-user
 
           .field
-            label.label Username / Email
-            .control
-              input.input(v-model.trim="email" type="text" v-on:keydown.native="keyhandler" tabindex="31")
+            label.label Email
+            .control.has-icons-left
+              input.input(v-model.trim="email" type="text" v-on:keydown.native="keyhandler" placeholder="Enter an Account Email")
+              span.icon.is-small.is-left
+                i.fa.fa-envelope-o
 
           .field
             label.label Password
-            .control
-              input.input(v-model.trim="password" type="password" v-on:keydown.native="keyhandler" tabindex="32" autocomplete="current-password")
+            .control.has-icons-left
+              input.input(v-model.trim="password" type="password" v-on:keydown.native="keyhandler" autocomplete="current-password" placeholder="Enter your Password")
+              span.icon.is-small.is-left
+                i.fa.fa-lock
 
           br
           .notification.is-danger(v-if="loginError")
             // button.delete
             | {{loginError}}
             br
-          a.button.is-primary.is-pulled-right(v-on:click="doLogin" tabindex="33") Login
-          a.button.is-outlined(:size="'sm'" :variant="'link'" v-on:click="setMode('forgot')" tabindex="34") Forgot password
-          | &nbsp;
-          a.button.is-outlined(:size="'sm'" :variant="'link'" v-on:click="setMode('register')" tabindex="35") Sign Up
+
+
+          a.button.is-primary.is-pulled-right(v-on:click="doLogin" tabindex="33")
+            | Login
+          a(href="#" v-on:click="setMode('forgot')")
+            | Forgot Login Info?
+
+          //a.button.is-outlined(:size="'sm'" :variant="'link'" v-on:click="setMode('forgot')") Forgot password
+          //| &nbsp;
+          //a.button.is-outlined(:size="'sm'" :variant="'link'" v-on:click="setMode('register')") Sign Up
           br
 
+      .card-footer
+        .card-footer-item
+          | New to ZZZZ? &nbsp;&nbsp;
+          a(href="#" v-on:click="setMode('register')") Sign up
 
 
 
@@ -111,30 +116,39 @@
     // https://bootstrap-vue.js.org/docs/components/button
     .card(v-if="mode === 'register'")
       header.card-header
-        p.card-header-title Register
+        p.card-header-title SIGN UP
       .card-content
-        | Hi!
-        | Enter your details and we'll be happy to sign you up.
 
         // Username
-        .b-form-group(v-if="registerRequiresUsername" label="Username" placeholder="Choose a user name")
-          .b-form-input(v-model.trim="registerUsername" type="text" v-on:keydown.native="keyhandler" v-on:input="validateUsername" :state="registerUsernameState" autocomplete="off")
-          .b-form-feedback#input-feedback
+        .field(v-if="registerRequiresUsername")
+          label.label
+            | User Name
+          .control.has-icons-left
+            input.input(v-model.trim="registerUsername" type="text" v-on:keydown.native="keyhandler" v-on:input="validateUsername" :state="registerUsernameState" autocomplete="off" placeholder="Choose a user name")
+            span.icon.is-small.is-left
+              i.fa.fa-user
+
+          .notification.is-danger(v-if="registerUsernameError")
             // This will only be shown if the preceeding input has an invalid state
             | {{registerUsernameError}}
+            br
 
         // Email
         .field
           label.label
             | Email
-          .control
-            input.input(v-model.trim="registerEmail" type="text" v-on:keydown.native="keyhandler")
+          .control.has-icons-left
+            input.input(v-model.trim="registerEmail" type="text" v-on:keydown.native="keyhandler" placeholder="Enter your email address")
+            span.icon.is-small.is-left
+              i.fa.fa-envelope-o
 
         .field(v-if="registerRequiresPassword")
           label.label
             | Password
-          .control
-            input.input(v-model.trim="registerPassword" type="password" v-on:keydown.native="keyhandler" autocomplete="off")
+          .control.has-icons-left
+            input.input(v-model.trim="registerPassword" type="password" v-on:keydown.native="keyhandler" autocomplete="off" placeholder="Choose a password")
+            span.icon.is-small.is-left
+              i.fa.fa-lock
 
         .field(v-if="registerRequiresFirstName")
           label.label
@@ -154,15 +168,25 @@
           .control
             input.input(v-model.trim="registerLastName" v-on:keydown.native="keyhandler")
 
+        br
         //- b-alert(variant="danger" show) Login Error
 
-        a.button(variant="primary" v-on:click="register") Register
-        a.button(:size="'sm'" :variant="'link'" v-on:click="setMode('login')") Cancel
-      //- .b-dropdown-header
-    //- .b-form
+        a.button.is-primary.is-pulled-right(v-on:click="register")
+          | SIGN UP
+        span.is-pulled-left
+          | Already have an account? &nbsp;
+          a(href="#" v-on:click="setMode('login')") Log in
+        br
+
+
+      .card-footer
+        .card-footer-item.has-text-centered
+          | By signing up to ZZZ you agree to our&nbsp;
+          a(href="#") EULA
+
 
     // Message for after the register email has been sent
-    .b-form(v-if="mode === 'registerAfter'")
+    .card(v-if="mode === 'registerAfter'")
       .b-dropdown-header
         // h4 Registration
         p
@@ -188,10 +212,11 @@
     .card(v-if="mode === 'forgot'")
       header.card-header
         p.card-header-title
-          |Forgotten Password
+          | Forgot your Login Information?
       .card-content
-        | Forgot your password? No problem. Enter your email address below and we'll
-        | well send an email with a link to reset your password.
+        | No problem. Enter your email address
+        | &nbsp;or user name
+        | &nbsp;and we'll well send an email with recovery instructions.
         br
         br
 
@@ -201,18 +226,18 @@
           .control
             input.input(v-model.trim="forgotEmail" type="text" v-on:keydown.native="keyhandler")
 
-        .notification.is-danger(v-if="forgotError" variant="danger" show)
+        .notification.is-danger(v-if="forgotError" show)
           | {{forgotError}}
 
         // https://bootstrap-vue.js.org/docs/components/button
-        a.button(variant="primary" v-on:click="forgot")
-          span(v-if="forgotInProgress")
-            icon(name="refresh" spin)
-            | &nbsp;&nbsp;
+        a.button.is-primary.is-pulled-right(v-on:click="forgot")
+          //- span(v-if="forgotInProgress")
+          //-   icon(name="refresh" spin)
+          //-   | &nbsp;&nbsp;
           | Send the Email
-        | &nbsp;
-        a.button(:size="'sm'" :variant="'link'" right v-on:click="setMode('login')") Cancel
-    //- .b-dropdown-header
+        .is-pulled-right &nbsp;&nbsp;
+        a.button.is-pulled-right(v-on:click="setMode('login')") Cancel
+        br
 
     // Message for after the forgot email has been sent
     .card(v-if="mode === 'forgotAfter'")
@@ -226,7 +251,8 @@
         br
 
         // Should just close the dropdown VVVVV
-        a.button(:size="'sm'" :variant="'primary'" v-on:click="setMode('login')") Ok
+        a.button.is-primary.is-pulled-right(v-on:click="setMode('login')") Ok
+        br
     //- div
 
   //- b-nav-item-dropdown
@@ -306,8 +332,9 @@
     data () {
       // console.log('data(): this=', this)
       return {
-        email: 'philcal@mac.com',
-        password: 'mouse123',
+        username: '',
+        email: '',
+        password: '',
         loggedIn: false,
         mode: (this.$authservice && this.$authservice.user) ? 'loggedIn' : 'login',
 
@@ -686,7 +713,11 @@
 
 .authservice-login {
   .card {
-    width: 450px;
+    width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 10px;
+    background-color: #f2f2f2;
   }
 
   footer {

@@ -8,7 +8,7 @@
   "author": "Philip Callender <philcal@mac.com>",
   "private": false,
   "scripts": {
-    "build": "yarn bili index.js --plugin vue --plugin pug",
+    "build": "yarn bili index.js --plugin vue --plugin pug -plugin flow",
     "patch-release": "npm version patch && npm publish && git push --follow-tags"
   },
   "keywords": [
@@ -25,8 +25,14 @@
   ],
   "devDependencies": {
     "bili": "^3.0.14",
+    "rollup-plugin-flow": "^1.1.1",
     "rollup-plugin-pug": "^0.1.6",
     "rollup-plugin-vue": "^3.0.0",
     "vue-template-compiler": "^2.5.16"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "jwt-decode": "^2.2.0",
+    "query-string": "^6.0.0"
   }
 }

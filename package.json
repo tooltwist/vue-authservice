@@ -1,6 +1,6 @@
 {
   "name": "fxkn15zor",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "zmain": "index.js",
   "main": "dist/fxkn15zor.cjs.js",
   "license": "MIT",

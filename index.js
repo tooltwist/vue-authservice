@@ -12,7 +12,7 @@ let obj = {
 
     console.log('done')
   },
-  abc: 'def'
+  abc: 'defg'
 }
 
 export default obj

@@ -8,11 +8,16 @@ var Component = {
 
     var _c = _vm._self._c || _h;
 
-    return _c('h1', [_vm._v("hello")]);
+    return _c('h1', [_vm._v("hello and " + _vm._s(_vm.stuff))]);
   },
   staticRenderFns: [],
   _scopeId: 'data-v-1754c3f3',
-  name: 'my-component'
+  name: 'my-component',
+  data: function data() {
+    return {
+      stuff: '1 Dribble a little bit more.'
+    };
+  }
 };
 
 // import Vue from 'vue'
@@ -24,7 +29,7 @@ var obj = {
     vm.component('authservice-navbar', Component);
     console.log('done');
   },
-  abc: 'def'
+  abc: 'defg'
 };
 
 module.exports = obj;

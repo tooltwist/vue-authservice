@@ -1,6 +1,6 @@
 {
   "name": "vue-authservice",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "zmain": "index.js",
   "main": "dist/vue-authservice.cjs.js",
   "license": "MIT",

@@ -1,6 +1,3 @@
-// Documentation for this component is automatically documented using vue-styleguidist.
-// See https://github.com/vue-styleguidist/vue-styleguidist/tree/master/docs
-
 <template lang="pug">
 
   b-nav-item-dropdown(:text="($authservice.user!=null) ? (headerName) : (signin ? 'Sign in' : 'Login')" right)

@@ -1,6 +1,3 @@
-.b-dropdown-header// Documentation for this component is automatically documented using vue-styleguidist.
-// See https://github.com/vue-styleguidist/vue-styleguidist/tree/master/docs
-
 <template lang="pug">
 
   .authservice-login

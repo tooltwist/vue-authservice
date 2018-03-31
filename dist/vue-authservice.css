@@ -1,0 +1,49 @@
+h1 {
+  color: blue; }
+
+.authservice-login .card {
+  width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 10px;
+  background-color: #f2f2f2; }
+
+.authservice-login footer {
+  padding-top: 0px;
+  padding-bottom: 0px; }
+
+.authservice-login .my-button {
+  margin-top: 8px; }
+
+.authservice-login .social-button {
+  width: 210px;
+  margin-top: 5px; }
+  .authservice-login .social-button i.fa {
+    margin-top: -2px; }
+
+h4 {
+  color: black; }
+
+label {
+  color: black !important; }
+
+.login-form {
+  width: 350px; }
+
+.forgot-form {
+  width: 350px;
+  word-wrap: break-word; }
+
+.forgot-text {
+  word-wrap: break-word;
+  white-space: normal;
+  margin-bottom: 20px; }
+
+.register-text {
+  word-wrap: break-word;
+  white-space: normal;
+  margin-bottom: 20px; }
+
+.register-form {
+  width: 350px;
+  word-wrap: break-word; }

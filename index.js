@@ -6,8 +6,8 @@ console.log(`Before Authservice`)
 import Authservice from './src/Authservice'
 console.log(`After Authservice`, Authservice)
 
-import AuthserviceNavbar from './components/AuthserviceNavbar'
-import AuthserviceLogin from './components/AuthserviceLogin'
+// import AuthserviceNavbar from './components/AuthserviceNavbar'
+import AuthserviceLogin from './components/AuthserviceLogin.vue'
 
 export let _Vue
 
@@ -51,7 +51,7 @@ function install (Vue, options) {
   //Vue.mixin({
   Vue.mixin({
     beforeCreate () {
-      // console.log('fxkn15zor: index.js - beforeCreate()')
+      // console.log('vue-authservice: index.js - beforeCreate()')
 
       if (!this.$parent) {
       //if (isDef(this.$options.authservice)) {
@@ -103,7 +103,7 @@ function install (Vue, options) {
   })
 
   // Define the components
-  Vue.component('authservice-navbar', AuthserviceNavbar)
+  // Vue.component('authservice-navbar', AuthserviceNavbar)
   Vue.component('authservice-login', AuthserviceLogin)
   // Vue.component('authservice-navbar-blu', AuthserviceNavbarBlu)
   // Vue.component('authservice-bulma', AuthserviceBulma)

@@ -1,4 +1,4 @@
-## Installation
+# Installation
 
     npm install vue-authservice debounce --save
 
@@ -7,7 +7,7 @@ or
     yarn add vue-authservice debounce
     
 
-#### Adding to a VueJS project
+### Adding to a VueJS project
 
 When used with a module system, you must explicitly install Vuex via Vue.use():
 
@@ -17,7 +17,7 @@ When used with a module system, you must explicitly install Vuex via Vue.use():
     Vue.use(Authservice, options)
 
 
-#### Adding to a Nuxt project
+### Adding to a Nuxt project
 
 Authservice is added to a Nuxt project by creating a Nuxt plugin.
 
@@ -55,12 +55,12 @@ nuxt.config.js:
 Note: this is `plugins` under `module.exports`, not to be confused with any of the Webpack plugins defined inside `build`.
 
 
-## Your Account Dashboard
+# Your Account Dashboard
 To use Authservice you will need to create a free account at http://tooltwist.com and
 get the API for your application.
 
 
-## Mandatory Options
+# Options
 
 vue-authservice requires that an `options` object is passed to Vue.use().
 
@@ -114,7 +114,7 @@ apikey   | mandatory          | Allocate APIKEYs with your tooltwist.com account
 sitename | 'this site'        | Name of your website / company, used in prompts
 
 
-#### Registration
+### Registration
 
 Allowing users to sign up using their email address is optional. To disable
 email registration, set `register` to `false`.
@@ -162,7 +162,7 @@ termsMessage | By signing up to <sitename> you agree to our EULA | Message on th
 termsRoute | /terms-and-conditions | URL of your EULA page
 registerMessage | 'New to <sitename>?' | Sign in message shown on the login page
     
-#### Forgotten password
+### Forgotten password
 
 The optional 'forgotten password' option allows an email to be sent to the user, containing a
 link to a 'reset password' page on your site. You will need to provide this page, and provide
@@ -210,7 +210,7 @@ If you _do_ want to allow user self-registration, provide the options like this:
     }
 
 
-## Overriding default Login options
+### Overriding default Login options
 The options for a user logging in are downloaded from the Authservice server, and are controlled
 by the Dashboard for your account at tooltwist.com.
 

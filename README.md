@@ -1,12 +1,4 @@
-# vue-authservice
-VueJS components for authservice.io
-
-
-
-
-
-
-# Installation
+## Installation
 
     npm install vue-authservice debounce --save
 
@@ -55,11 +47,10 @@ To use Authservice you will need to create a free account at http://tooltwist.co
 get the API for your application.
 
 
-## Options
+## Mandatory Options
 
 vue-authservice requires that an `options` object is passed to Vue.use().
 
-### Mandatory Options
 These options relate to how your client application connects to the remote Authservice.io server.
 
 Some of these values may change during the different stages of your development, so the endpoint
@@ -75,7 +66,7 @@ protected-config/websiteConfig.js:
       authservice: {
         host: 'authservice.io',
         version: 'v2',
-        apikey: 'API10O0X1NS8FWUTO3FXKN15ZOR09'
+        apikey: 'API10O0X1XXXXXXXXXXXKN15ZXXX9'
       }
     }
 
@@ -110,7 +101,7 @@ apikey   | mandatory          | Allocate APIKEYs with your tooltwist.com account
 sitename | 'this site'        | Name of your website / company, used in prompts
 
 
-### Registration
+#### Registration
 
 Allowing users to sign up using their email address is optional. To disable
 email registration, set `register` to `false`.
@@ -158,7 +149,7 @@ termsMessage | By signing up to <sitename> you agree to our EULA | Message on th
 termsRoute | /terms-and-conditions | URL of your EULA page
 registerMessage | 'New to <sitename>?' | Sign in message shown on the login page
     
-### Forgotten password
+#### Forgotten password
 
 The optional 'forgotten password' option allows an email to be sent to the user, containing a
 link to a 'reset password' page on your site. You will need to provide this page, and provide
@@ -206,7 +197,7 @@ If you _do_ want to allow user self-registration, provide the options like this:
     }
 
 
-## Overriding defaultLogin options
+## Overriding default Login options
 The options for a user logging in are downloaded from the Authservice server, and are controlled
 by the Dashboard for your account at tooltwist.com.
 

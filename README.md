@@ -163,10 +163,10 @@ email registration, set `register` to `false`.
 
 ```json
     const options = {
-      ...
+
       hints: {
         register: false,
-        ...
+
       }
     }
 ```
@@ -175,7 +175,7 @@ If you _do_ want to allow user self-registration, provide the options like this:
 
 ```json
     const options = {
-      ...
+
       hints: {
         register: {
           password: true,
@@ -189,7 +189,7 @@ If you _do_ want to allow user self-registration, provide the options like this:
         login : {
           registerMessage: 'Don\'t have an account yet?'
         },
-        ...
+
       }
     }
 ```
@@ -216,7 +216,7 @@ it's URL as `resumeURL`.
 
 ```json
     const options = {
-      ...
+
       hints: {
         forgot: {
           resumeURL: 'http://mydomain.com/password-reset'
@@ -229,10 +229,10 @@ To disable forgotten password functionality, set `forgot` to `false`.
 
 ```json
     const options = {
-      ...
+
       hints: {
         register: false,
-        ...
+
       }
     }
 ```
@@ -241,7 +241,7 @@ If you _do_ want to allow user self-registration, provide the options like this:
 
 ```json
     const options = {
-      ...
+
       hints: {
         register: {
           password: true,
@@ -255,7 +255,7 @@ If you _do_ want to allow user self-registration, provide the options like this:
         login : {
           registerMessage: 'Don\'t have an account yet?'
         },
-        ...
+
       }
     }
 ```
@@ -274,7 +274,6 @@ you try to enable it here.
 
 ```json
     const options = {
-      ...
 
       hints: {
         usernames: true,

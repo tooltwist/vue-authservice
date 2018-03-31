@@ -77,7 +77,7 @@ From your template:
   div
     // Display the user's name, or a link to the Login page
     h1(v-if="$authservice.user") Hello {{$authservice.user.firstname}}
-    router-link(v-else to="home">Home) Sign In
+    router-link(v-else to="login") Sign In
 </template>
 ```
 
@@ -112,35 +112,35 @@ convention we use is to place such a file in a directory named `protected-config
 protected-config/websiteConfig.js:
 
 ```javascript
-    /*
-     *  This file gets overwritten during production deployments.
-     */
-    module.exports = {
-      authservice: {
-        host: 'authservice.io',
-        version: 'v2',
-        apikey: 'API10O0X1XXXXXXXXXXXKN15ZXXX9'
-      }
-    }
+/*
+ *  This file gets overwritten during production deployments.
+ */
+module.exports = {
+  authservice: {
+    host: 'authservice.io',
+    version: 'v2',
+    apikey: 'API10O0X1XXXXXXXXXXXKN15ZXXX9'
+  }
+}
 ```
 
 We then reference this file when setting our endpoints. Note that not all the values need to be defined.
 
 ```javascript
-    // Load the configuration. This directory should be included in .gitignore.
-    import Config from '../protected-config/websiteConfig'
+// Load the configuration. This directory should be included in .gitignore.
+import Config from '../protected-config/websiteConfig'
 
-    const options = {
-      protocol: Config.authservice.protocol,
-      host: Config.authservice.host,
-      port: Config.authservice.port,
-      version: Config.authservice.version,
-      apikey: Config.authservice.apikey,
-      hints: {
-        sitename: 'ToolTwist',
-      }
-      ...
-    }
+const options = {
+  protocol: Config.authservice.protocol,
+  host: Config.authservice.host,
+  port: Config.authservice.port,
+  version: Config.authservice.version,
+  apikey: Config.authservice.apikey,
+  hints: {
+    sitename: 'ToolTwist',
+  }
+  ...
+}
 ```
 
 Most of these endpoint values are provided when you get the APIKEY from the ToolTwist website.

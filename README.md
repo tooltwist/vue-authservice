@@ -32,12 +32,29 @@ nuxt.config.js:
 
     module.exports = {
       ...
+      // DO NOT ADD UNDER 'build'
+      build: {
+        postcss: {
+          plugins: {
+            // NOT HERE
+          }
+        },
+        plugins: {
+          // NOT HERE
+        }
+      },
+      ...
+      
+      // ADD HERE
       plugins: [
         ...
         { src: '~plugins/vue-authservice.js', ssr: false },
       ],
     }
     
+Note: this is `plugins` under `module.exports`, not to be confused with any of the Webpack plugins defined inside `build`.
+
+
 ## Your Account Dashboard
 To use Authservice you will need to create a free account at http://tooltwist.com and
 get the API for your application.

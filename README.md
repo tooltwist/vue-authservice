@@ -6,32 +6,24 @@ Instantly add authentication to a VueJS or Nuxt project.
 * User registration, with confirmation email verification
 * Forgotten password handling via email
 * JWT (JSON Web Token) for downstream verifications.
-
-Add login to your application with a simple Vue component.
-
-    <template lang="pug">
-      #login-page
-        my-header
-        section
-  
-          authservice-login
-        my-footer
-    </template>
-
+* User administration
+* Integration with MailChimp, import and export
+* Blacklisted users
 
 
 
 
 # Quick Start
 
-    npm install vue-authservice debounce --save
+```sh
+npm install vue-authservice debounce --save
 
     or
 
-    yarn add vue-authservice debounce
-    
+yarn add vue-authservice debounce
+```    
 
-### Adding to a VueJS project
+## Add to a VueJS project
 
 When used with a module system, you must explicitly install Vuex via Vue.use():
 
@@ -41,7 +33,7 @@ When used with a module system, you must explicitly install Vuex via Vue.use():
     Vue.use(Authservice, options)
 
 
-### Adding to a Nuxt project
+## Add to a Nuxt project
 
 Authservice is added to a Nuxt project by creating a Nuxt plugin.
 
@@ -64,12 +56,24 @@ nuxt.config.js:
     
 Note: this is `plugins` under `module.exports`, not to be confused with any of the Webpack plugins defined inside `build`.
 
-###
+## Create the Login Page
+
+```pug
+<template lang="pug">
+  .my-login-page
+    my-header
+    section
+      authservice-login
+    my-footer
+</template>
+```
+
 
 
 # Your Account Dashboard
-To use Authservice you will need to create a free account at http://tooltwist.com and
-get the API for your application.
+Create a free ToolTwist account at http://tooltwist.com, and press 'Add Application' to
+get an APIKey for your application. This dashboard provides user administration, metrics,
+and other functionality.
 
 
 # Options

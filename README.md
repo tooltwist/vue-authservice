@@ -25,11 +25,7 @@ Authservice is added to a Nuxt project by creating a Nuxt plugin.
 
     import Vue from 'vue'
     import Authservice from 'vue-authservice'
-
-    // Load the configuration. This directory should be included in .gitignore.
-    import Config from '../protected-config/websiteConfig'
-
-    const options = ...  // See below
+    
     Vue.use(Authservice, options)
 
 nuxt.config.js:

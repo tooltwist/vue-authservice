@@ -1,5 +1,5 @@
 Arguments: 
-  /usr/local/bin/node /Users/philcal/.yarn/bin/yarn.js build
+  /usr/local/bin/node /Users/philcal/.yarn/bin/yarn.js patch-release
 
 PATH: 
   /Users/philcal/.yarn/bin:/Users/philcal/.config/yarn/global/node_modules/.bin:/usr/local/Cellar/node/8.2.1/bin:/Users/philcal/Library/Python/2.7/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/Users/philcal/bin:/Users/philcal/Development/ttutil:/Users/philcal/Development/ttutil-prod:/Development/gopath/bin:/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/Resources/:/Users/philipcallender/Development/gradle-1.10/bin:/Users/philcal/Library/Android/sdk/platform-tools:/Users/philcal/.gem/ruby/2.0.0/bin/:/usr/local/go/bin:/Development/gopath/bin:/Users/philcal/Library/Python/3.6/bin:/Users/philipcallender/bin
@@ -16,7 +16,7 @@ Platform:
 npm manifest: 
   {
     "name": "vue-authservice",
-    "version": "1.0.3",
+    "version": "0.0.1",
     "main": "index.js",
     "zmain": "dist/vue-authservice.cjs.js",
     "license": "MIT",
@@ -4435,7 +4435,7 @@ Trace:
   Error: Command failed.
   Exit code: 1
   Command: sh
-  Arguments: -c yarn bili index.js --plugin vue --plugin pug -plugin flow
+  Arguments: -c npm version patch && npm publish && git push --follow-tags
   Directory: /Development/Projects/vue-authservice
   Output:
   

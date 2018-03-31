@@ -1,8 +1,32 @@
-# Installation
+# Introduction
+
+Instantly add authentication to a VueJS or Nuxt project.
+
+* Login with username, email address, or Social Media credentials
+* User registration, with confirmation email verification
+* Forgotten password handling via email
+* JWT (JSON Web Token) for downstream verifications.
+
+Add login to your application with a simple Vue component.
+
+    <template lang="pug">
+      #login-page
+        my-header
+        section
+  
+          authservice-login
+        my-footer
+    </template>
+
+
+
+
+
+# Quick Start
 
     npm install vue-authservice debounce --save
 
-or
+    or
 
     yarn add vue-authservice debounce
     
@@ -32,20 +56,6 @@ nuxt.config.js:
 
     module.exports = {
       ...
-      // DO NOT ADD UNDER 'build'
-      build: {
-        postcss: {
-          plugins: {
-            // NOT HERE
-          }
-        },
-        plugins: {
-          // NOT HERE
-        }
-      },
-      ...
-      
-      // ADD HERE
       plugins: [
         ...
         { src: '~plugins/vue-authservice.js', ssr: false },
@@ -53,6 +63,8 @@ nuxt.config.js:
     }
     
 Note: this is `plugins` under `module.exports`, not to be confused with any of the Webpack plugins defined inside `build`.
+
+###
 
 
 # Your Account Dashboard

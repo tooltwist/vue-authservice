@@ -68,6 +68,29 @@ Note: this is `plugins` under `module.exports`, not to be confused with any of t
 </template>
 ```
 
+## Access user details
+
+From your template:
+
+```pug
+<template lang="pug">
+...
+     // Display the user's name, or a link to the Login page
+     h1(v-if="$authservice.user") Hello {{$authservice.user.firstname}}
+     router-link(v-else to="home">Home) Sign In
+</template>
+```
+
+From your code:
+
+```javascript
+methods: {
+  doSomething: function () {
+    let jwt = this.$authservice.jwt // Can be passed to a backend server
+    let user = this.$authservice.user // null if not logged in
+  }
+}
+```
 
 
 # Your Account Dashboard
@@ -88,6 +111,7 @@ convention we use is to place such a file in a directory named `protected-config
 
 protected-config/websiteConfig.js:
 
+```javascript
     /*
      *  This file gets overwritten during production deployments.
      */
@@ -98,10 +122,11 @@ protected-config/websiteConfig.js:
         apikey: 'API10O0X1XXXXXXXXXXXKN15ZXXX9'
       }
     }
+```
 
 We then reference this file when setting our endpoints. Note that not all the values need to be defined.
 
-
+```javascript
     // Load the configuration. This directory should be included in .gitignore.
     import Config from '../protected-config/websiteConfig'
 
@@ -116,6 +141,7 @@ We then reference this file when setting our endpoints. Note that not all the va
       }
       ...
     }
+```
 
 Most of these endpoint values are provided when you get the APIKEY from the ToolTwist website.
 
@@ -135,6 +161,7 @@ sitename | 'this site'        | Name of your website / company, used in prompts
 Allowing users to sign up using their email address is optional. To disable
 email registration, set `register` to `false`.
 
+```json
     const options = {
       ...
       hints: {
@@ -142,9 +169,11 @@ email registration, set `register` to `false`.
         ...
       }
     }
+```
 
 If you _do_ want to allow user self-registration, provide the options like this:
 
+```json
     const options = {
       ...
       hints: {
@@ -163,6 +192,7 @@ If you _do_ want to allow user self-registration, provide the options like this:
         ...
       }
     }
+```
 
 For most applications it is desirable to keep the registration process as simple as possible
     
@@ -184,7 +214,7 @@ The optional 'forgotten password' option allows an email to be sent to the user,
 link to a 'reset password' page on your site. You will need to provide this page, and provide
 it's URL as `resumeURL`.
 
-
+```json
     const options = {
       ...
       hints: {
@@ -193,9 +223,11 @@ it's URL as `resumeURL`.
         }
       }
     }
+```
 
 To disable forgotten password functionality, set `forgot` to `false`.
 
+```json
     const options = {
       ...
       hints: {
@@ -203,9 +235,11 @@ To disable forgotten password functionality, set `forgot` to `false`.
         ...
       }
     }
+```
 
 If you _do_ want to allow user self-registration, provide the options like this:
 
+```json
     const options = {
       ...
       hints: {
@@ -224,7 +258,7 @@ If you _do_ want to allow user self-registration, provide the options like this:
         ...
       }
     }
-
+```
 
 ### Overriding default Login options
 The options for a user logging in are downloaded from the Authservice server, and are controlled
@@ -238,6 +272,7 @@ allow it from this application.
 However, if you do not have Facebook login configured in the Admin dashboard, an error will occur if
 you try to enable it here.
 
+```json
     const options = {
       ...
 
@@ -253,6 +288,7 @@ you try to enable it here.
         },
       }
     }
+```
 
 Option | Default | Notes
 ------ | ------- | -----------

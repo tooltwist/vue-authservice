@@ -8,11 +8,14 @@ VueJS components for authservice.io
 
 # Installation
 
+    npm install vue-authservice debounce --save
+
+or
 
     yarn add vue-authservice debounce
     
 
-### Adding to your project
+#### Adding to a VueJS project
 
 When used with a module system, you must explicitly install Vuex via Vue.use():
 
@@ -22,9 +25,9 @@ When used with a module system, you must explicitly install Vuex via Vue.use():
     Vue.use(Authservice, options)
 
 
-### Nuxt
+#### Adding to a Nuxt project
 
-Authservice is added to a Nuxt project by creating a plugin.
+Authservice is added to a Nuxt project by creating a Nuxt plugin.
 
 ~/plugins/vue-authservice:
 
@@ -34,23 +37,7 @@ Authservice is added to a Nuxt project by creating a plugin.
     // Load the configuration. This directory should be included in .gitignore.
     import Config from '../protected-config/websiteConfig'
 
-    // Make authservice available as $authservice
-    let resumeURL = 'http://localhost:8080/'
-
-    const options = {
-      protocol: Config.authservice.protocol,
-      host: Config.authservice.host,
-      port: Config.authservice.port,
-      version: Config.authservice.version,
-      apikey: Config.authservice.apikey,
-
-      hints: {
-        sitename: 'MySite',
-        login: { },
-        register: { resumeURL: resumeURL, },
-        forgot: { resumeURL: resumeURL }
-      }
-    }
+    const options = ...  // See below
     Vue.use(Authservice, options)
 
 nuxt.config.js:
@@ -63,7 +50,11 @@ nuxt.config.js:
       ],
     }
     
-    
+## Your Account Dashboard
+To use Authservice you will need to create a free account at http://tooltwist.com and
+get the API for your application.
+
+
 ## Options
 
 vue-authservice requires that an `options` object is passed to Vue.use().
@@ -100,51 +91,155 @@ We then reference this file when setting our endpoints. Note that not all the va
       port: Config.authservice.port,
       version: Config.authservice.version,
       apikey: Config.authservice.apikey,
-    
+      hints: {
+        sitename: 'ToolTwist',
+      }
       ...
     }
 
 Most of these endpoint values are provided when you get the APIKEY from the ToolTwist website.
 
 
-Option | Description | Default
------- | ----------- | -------
-protocol | http or https | https
-host     |               | api.authservice.io 
-port     |               | 80
-version  |               | v2
-apikey   |               | Mandatory
+Option | Default | Notes
+------ | ------- | -----------
+protocol | https              | http or https
+host     | api.authservice.io | Enterprise customers have dedicated servers
+port     | 80                 |
+version  | v2                 |
+apikey   | mandatory          | Allocate APIKEYs with your tooltwist.com account
+sitename | 'this site'        | Name of your website / company, used in prompts
 
 
+### Registration
 
-## Hints
+Allowing users to sign up using their email address is optional. To disable
+email registration, set `register` to `false`.
 
-  hints: {
-    usernames: true,
-    sitename: 'ToolTwist',
-    login: {
-      // email: false,
-      // facebook: true,
-      // google: true,
-      // github: true,
-      // linkedin: true,
-      // twitter: true,
-      //registerMessage: 'Don\'t have an account yet?'
-    },
-    registerz: true,
-    register: {
-      password: true,
-      // firstname: true,
-      // middlename: true,
-      // lastname: true,
-      resumeURL: resumeURL,
-      //termsMessage: 'Agree to our terms?',
-      //termsRoute: '/terms-and-conditions'
-    },
-    forgotz: true,
-    forgot: {
-      // username: true,
-      // email: true,
-      resumeURL: resumeURL
+    const options = {
+      ...
+      hints: {
+        register: false,
+        ...
+      }
     }
-  },
+
+If you _do_ want to allow user self-registration, provide the options like this:
+
+    const options = {
+      ...
+      hints: {
+        register: {
+          password: true,
+          firstname: false,
+          middlename: false,
+          lastname: false,
+          resumeURL: 'http://mydomain.com/welcome',
+          termsMessage: 'Agree to our terms?',
+          termsRoute: '/terms-and-conditions'
+        },
+        login : {
+          registerMessage: 'Don\'t have an account yet?'
+        },
+        ...
+      }
+    }
+
+For most applications it is desirable to keep the registration process as simple as possible
+    
+    
+Option | Default | Notes
+------ | ------- | -----------
+password | true              | If `false` the user will not be prompted for a password.
+firstname | false | Prompt the user for their first name
+middlename | false | Prompt the user for their middle name
+lastname | false | Prompt the user for their last name
+resumeURL | mandatory | Where the useer is sent after clicking the link in the email they are sent
+termsMessage | By signing up to <sitename> you agree to our EULA | Message on the bottom of the sign up page
+termsRoute | /terms-and-conditions | URL of your EULA page
+registerMessage | 'New to <sitename>?' | Sign in message shown on the login page
+    
+### Forgotten password
+
+The optional 'forgotten password' option allows an email to be sent to the user, containing a
+link to a 'reset password' page on your site. You will need to provide this page, and provide
+it's URL as `resumeURL`.
+
+
+    const options = {
+      ...
+      hints: {
+        forgot: {
+          resumeURL: 'http://mydomain.com/password-reset'
+        }
+      }
+    }
+
+To disable forgotten password functionality, set `forgot` to `false`.
+
+    const options = {
+      ...
+      hints: {
+        register: false,
+        ...
+      }
+    }
+
+If you _do_ want to allow user self-registration, provide the options like this:
+
+    const options = {
+      ...
+      hints: {
+        register: {
+          password: true,
+          firstname: false,
+          middlename: false,
+          lastname: false,
+          resumeURL: 'http://mydomain.com/welcome',
+          termsMessage: 'Agree to our terms?',
+          termsRoute: '/terms-and-conditions'
+        },
+        login : {
+          registerMessage: 'Don\'t have an account yet?'
+        },
+        ...
+      }
+    }
+
+
+## Overriding defaultLogin options
+The options for a user logging in are downloaded from the Authservice server, and are controlled
+by the Dashboard for your account at tooltwist.com.
+
+The options below can be used to disable this login options.
+
+For example, you may have Facebook login configured on the Admin dashboard, but do not want to
+allow it from this application.
+
+However, if you do not have Facebook login configured in the Admin dashboard, an error will occur if
+you try to enable it here.
+
+    const options = {
+      ...
+
+      hints: {
+        usernames: true,
+        login: {
+          email: false,
+          facebook: true,
+          github: true,
+          google: true,
+          linkedin: true,
+          twitter: true,
+        },
+      }
+    }
+
+Option | Default | Notes
+------ | ------- | -----------
+usernames | false | Are users required to have a unique username
+email | true | If disabled, the user will be forced to use a social media login
+facebook | false | Allow Facebook login
+github | false | Allow Github login
+google | false | Allow Google login
+linkedin | false | Allow Linkedin login
+twitter | false | Allow Twitter login

@@ -16,11 +16,11 @@ Instantly add authentication to a VueJS or Nuxt project.
 # Quick Start
 
 ```sh
-npm install vue-authservice debounce --save
+npm install vue-authservice debounce vue-awesome --save
 
     or
 
-yarn add vue-authservice debounce
+yarn add vue-authservice debounce vue-awesome
 ```    
 
 ## Add to a VueJS project

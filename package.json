@@ -1,8 +1,8 @@
 {
   "name": "vue-authservice",
   "version": "0.0.3",
-  "main": "index.js",
-  "zmain": "dist/vue-authservice.cjs.js",
+  "zmain": "index.js",
+  "main": "dist/vue-authservice.cjs.js",
   "license": "MIT",
   "description": "Test junk",
   "author": "Philip Callender <philcal@mac.com>",

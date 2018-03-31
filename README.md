@@ -74,10 +74,10 @@ From your template:
 
 ```pug
 <template lang="pug">
-...
-     // Display the user's name, or a link to the Login page
-     h1(v-if="$authservice.user") Hello {{$authservice.user.firstname}}
-     router-link(v-else to="home">Home) Sign In
+  div
+    // Display the user's name, or a link to the Login page
+    h1(v-if="$authservice.user") Hello {{$authservice.user.firstname}}
+    router-link(v-else to="home">Home) Sign In
 </template>
 ```
 
@@ -161,7 +161,7 @@ sitename | 'this site'        | Name of your website / company, used in prompts
 Allowing users to sign up using their email address is optional. To disable
 email registration, set `register` to `false`.
 
-```json
+```javascript
     const options = {
 
       hints: {
@@ -173,7 +173,7 @@ email registration, set `register` to `false`.
 
 If you _do_ want to allow user self-registration, provide the options like this:
 
-```json
+```javascript
     const options = {
 
       hints: {
@@ -214,7 +214,7 @@ The optional 'forgotten password' option allows an email to be sent to the user,
 link to a 'reset password' page on your site. You will need to provide this page, and provide
 it's URL as `resumeURL`.
 
-```json
+```javascript
     const options = {
 
       hints: {
@@ -227,7 +227,7 @@ it's URL as `resumeURL`.
 
 To disable forgotten password functionality, set `forgot` to `false`.
 
-```json
+```javascript
     const options = {
 
       hints: {
@@ -239,7 +239,7 @@ To disable forgotten password functionality, set `forgot` to `false`.
 
 If you _do_ want to allow user self-registration, provide the options like this:
 
-```json
+```javascript
     const options = {
 
       hints: {
@@ -272,9 +272,9 @@ allow it from this application.
 However, if you do not have Facebook login configured in the Admin dashboard, an error will occur if
 you try to enable it here.
 
-```json
+```javascript
     const options = {
-
+      //...
       hints: {
         usernames: true,
         login: {
@@ -284,7 +284,7 @@ you try to enable it here.
           google: true,
           linkedin: true,
           twitter: true,
-        },
+        }
       }
     }
 ```

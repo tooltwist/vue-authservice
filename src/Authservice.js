@@ -44,8 +44,77 @@ class Authservice {
     this.port = options.port ? options.port : 80
     this.version = options.version ? options.version : 'v2'
     this.apikey = options.apikey
-    this.registerResume = options.registerResume
-    this.forgetResume = options.forgetResume
+
+    // See if we are supporting email login (default to yes)
+    if (options.login && typeof(options.login.email) !== 'undefined' && !options.login.email) {
+      console.log(`Authservice(): Email is NOT supported`);
+      this.emailSupported = false;
+    } else {
+      console.log(`Authservice(): Email IS supported`);
+      this.emailSupported = true;
+    }
+
+
+
+    // See if registration is allowed
+    if (!this.emailSupported) {
+      // login.email: false
+      console.log(`Authservice(): Registration is NOT supported`);
+      this.registrationSupported = false;
+    } else if (options.hints && typeof(options.hints.register) !== 'undefined' && !options.hints.register) {
+      // Check for hints.register: false
+      console.log(`Authservice(): Registration is NOT supported`);
+      this.registrationSupported = false;
+    } else {
+      // We WILL allow registration. Check we have what we need.
+      if (typeof(options.hints.register) !== 'object') {
+        this.registrationSupported = false;
+        console.error('options.hints.register must be false, or an object')
+      } else if (!options.hints.register.resumeURL) {
+        this.registrationSupported = false;
+        console.log(`Authservice(): Registration is NOT supported`);
+        console.error('options.hints.register.resumeURL must be provided')
+      }
+      else if (typeof(options.hints.register.resumeURL) !== 'string') {
+        this.registrationSupported = false;
+        console.log(`Authservice(): Registration is NOT supported`);
+        console.error('options.hints.register.resumeURL must be a string')
+      } else {
+        // All good for registration
+        this.registrationSupported = true
+        this.registerResume = options.hints.register.resumeURL
+        console.log(`Authservice(): Registration IS supported`);
+      }
+    }
+
+    // See if forgotten password is allowed
+    if (!this.emailSupported) {
+      // Email is not used (options.login.email is false)
+      this.forgottenPasswordSupported = false;
+    } else if (options.hints && typeof(options.hints.forgot) !== 'undefined' && !options.hints.forgot) {
+      // Forgot password is specifically disallowed (options.hints.register is false)
+      this.forgottenPasswordSupported = false;
+    } else {
+      // We WILL allow forgot password. Check we have what we need.
+      if (typeof(options.hints.forgot) !== 'object') {
+        this.forgottenPasswordSupported = false;
+        console.error('options.hints.forgot must be false, or an object')
+      } else if (!options.hints.forgot || !options.hints.forgot.resumeURL) {
+        this.forgottenPasswordSupported = false;
+        console.error('options.hints.forgot.resumeURL must be provided')
+      }
+      else if (typeof(options.hints.forgot.resumeURL) !== 'string') {
+        this.forgottenPasswordSupported = false;
+        console.error('options.hints.forgot.resumeURL must be a string')
+      } else {
+        // All good for forgotten password
+        this.forgottenPasswordSupported = true;
+        this.forgetResume = options.hints.forgot.resumeURL
+      }
+    }
+
+    // Remember the options
+    this.options = options
 
     // Current user details
     this.user = null
@@ -325,18 +394,19 @@ class Authservice {
       }
 
       // Check we have a URL to go to after email verification.
-      switch (typeof (this.registerResume)) {
+      const registerOpts = this.register ? this.register : { }
+      switch (typeof (registerOpts.resumeURL)) {
         case 'string':
           break
         case 'undefined':
-          return reject('options.registerResume must be provided')
+          return reject('options.register.resumeURL must be provided')
         default:
-          return reject('options.registerResume must be a string')
+          return reject('options.register.resumeURL must be a string')
       }
 
       var params = {
         email: options.email,
-        resume: this.registerResume
+        resume: registerOpts.resumeURL
       }
 
       // Maybe check username is valid
@@ -721,6 +791,18 @@ class Authservice {
     // console.log('removeCookie(' + cname + ')')
     this.setCookie(cname, null, 0)
   }// removeCookie()
+
+  isEmailSupported () {
+    return this.emailSupported
+  }
+
+  isRegistrationSupported () {
+    return this.registrationSupported
+  }
+
+  isForgottenPasswordSupported () {
+    return this.forgottenPasswordSupported
+  }
 }
 
 //Authservice.install = install // The imported install()

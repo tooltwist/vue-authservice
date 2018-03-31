@@ -16,72 +16,79 @@
       .card-content
         .content
           div.has-text-centered
-            a.button.social-button.is-small(:variant="'primary'" v-on:click="facebookLogin()" tabindex="36")
-              i.fa.fa-facebook-f.has-text-grey
-              | &nbsp; Login with Facebook
+            div(v-if="allowFacebookLogin")
+              a.button.social-button.is-primary(v-on:click="facebookLogin()")
+                i.fa.fa-facebook-f.has-text-white
+                | &nbsp; Login with Facebook
+              br
+            div(v-if="allowGoogleLogin")
+              a.button.social-button.is-primary(v-on:click="googleLogin()")
+                i.fa.fa-google.has-text-white
+                | &nbsp; Login with Google
+              br
+            div(v-if="allowGithubLogin")
+              a.button.social-button.is-primary(:variant="'secondary'" v-on:click="githubLogin()" tabindex="38")
+                i.fa.fa-github.has-text-white
+                | &nbsp; Login with Github
+              br
+            div(v-if="allowLinkedinLogin")
+              a.button.social-button.is-primary(:variant="'secondary'" v-on:click="githubLogin()" tabindex="38")
+                i.fa.fa-linkedin.has-text-white
+                | &nbsp; Login with LinkedIn
+              br
+            div(v-if="allowTwitterLogin")
+              a.button.social-button.is-primary(:variant="'secondary'" v-on:click="githubLogin()" tabindex="38")
+                i.fa.fa-twitter.has-text-white
+                | &nbsp; Login with Twitter
+              br
+          div.has-text-centered(v-if="allowSocialLogin && loginWithEmail")
             br
-            a.button.social-button.is-small(:variant="'danger'" v-on:click="googleLogin()" tabindex="37")
-              i.fa.fa-google.has-text-grey
-              | &nbsp; Login with Google
+            b - or -&nbsp;&nbsp;&nbsp;
             br
-            a.button.social-button.is-small.is-secondary(:variant="'secondary'" v-on:click="githubLogin()" tabindex="38")
-              i.fa.fa-github.has-text-grey
-              | &nbsp; Login with Github
-            br
-            a.button.social-button.is-small.is-secondary(:variant="'secondary'" v-on:click="githubLogin()" tabindex="38")
-              i.fa.fa-linkedin.has-text-grey
-              | &nbsp; Login with LinkedIn
-            br
-            a.button.social-button.is-small.is-secondary(:variant="'secondary'" v-on:click="githubLogin()" tabindex="38")
-              i.fa.fa-twitter.has-text-grey
-              | &nbsp; Login with Twitter
-            br
-            br
-            b - OR -
-            br
-
-
-          .field
-            label.label User Name
-            .control.has-icons-left
-              input.input(v-model.trim="username" type="text" v-on:keydown.native="keyhandler" placeholder="Enter your User Name")
-              span.icon.is-small.is-left
-                i.fa.fa-user
-
-          .field
-            label.label Email
-            .control.has-icons-left
-              input.input(v-model.trim="email" type="text" v-on:keydown.native="keyhandler" placeholder="Enter an Account Email")
-              span.icon.is-small.is-left
-                i.fa.fa-envelope-o
-
-          .field
-            label.label Password
-            .control.has-icons-left
-              input.input(v-model.trim="password" type="password" v-on:keydown.native="keyhandler" autocomplete="current-password" placeholder="Enter your Password")
-              span.icon.is-small.is-left
-                i.fa.fa-lock
-
-          br
-          .notification.is-danger(v-if="loginError")
-            // button.delete
-            | {{loginError}}
             br
 
+          div(v-if="loginWithEmail")
+            .field(v-if="loginWithUsername")
+              label.label User Name or Email Address
+              .control.has-icons-left
+                input.input(v-model.trim="email" type="text" v-on:keydown.native="keyhandler" placeholder="Enter your User Name or Email Address")
+                span.icon.is-small.is-left
+                  i.fa.fa-user
+            .field(v-else)
+              label.label Email
+              .control.has-icons-left
+                input.input(v-model.trim="email" type="text" v-on:keydown.native="keyhandler" placeholder="Enter an Account Email")
+                span.icon.is-small.is-left
+                  i.fa.fa-envelope-o
 
-          a.button.is-primary.is-pulled-right(v-on:click="doLogin" tabindex="33")
-            | Login
-          a(href="#" v-on:click="setMode('forgot')")
-            | Forgot Login Info?
+            .field
+              label.label Password
+              .control.has-icons-left
+                input.input(v-model.trim="password" type="password" v-on:keydown.native="keyhandler" autocomplete="current-password" placeholder="Enter your Password")
+                span.icon.is-small.is-left
+                  i.fa.fa-lock
+
+            br
+            .notification.is-danger(v-if="loginError")
+              // button.delete
+              | {{loginError}}
+              br
+
+
+            a.button.is-primary.is-pulled-right(v-on:click="doLogin" tabindex="33")
+              | Login
+            a(v-if="provideForgottenPassword" href="#" v-on:click="setMode('forgot')")
+              | Forgot Login Info?
+          // loginWithEmail
 
           //a.button.is-outlined(:size="'sm'" :variant="'link'" v-on:click="setMode('forgot')") Forgot password
           //| &nbsp;
           //a.button.is-outlined(:size="'sm'" :variant="'link'" v-on:click="setMode('register')") Sign Up
           br
 
-      .card-footer
+      .card-footer(v-if="loginWithEmail && provideRegistration")
         .card-footer-item
-          | New to ZZZZ? &nbsp;&nbsp;
+          | {{loginSignupMessage}} &nbsp;&nbsp;
           a(href="#" v-on:click="setMode('register')") Sign up
 
 
@@ -179,10 +186,13 @@
         br
 
 
-      .card-footer
+      .card-footer(v-if="termsMessage")
         .card-footer-item.has-text-centered
-          | By signing up to ZZZ you agree to our&nbsp;
-          a(href="#") EULA
+          | {{termsMessage}}
+          .is-small(v-if="termsRoute")
+            | &nbsp;&nbsp;(
+            a.is-small(:href="termsRoute") link
+            | )
 
 
     // Message for after the register email has been sent
@@ -205,39 +215,43 @@
     //
     // Forgot mode
     //
-    // See:
-    //  https://bootstrap-vue.js.org/docs/components/alert
-    //  https://www.npmjs.com/package/vue-icons
-    //
-    .card(v-if="mode === 'forgot'")
-      header.card-header
-        p.card-header-title
-          | Forgot your Login Information?
-      .card-content
-        | No problem. Enter your email address
-        | &nbsp;or user name
-        | &nbsp;and we'll well send an email with recovery instructions.
-        br
-        br
+    div(v-if="mode === 'forgot'")
+      br
+      br
+      .card
+        header.card-header
+          p.card-header-title
+            | Forgot your Login Information?
+        .card-content
+          | No problem. Enter your email address
+          | &nbsp;and we'll well send an email with recovery instructions.
+          br
+          br
 
-        .field
-          label.label
-            | Email Address
-          .control
-            input.input(v-model.trim="forgotEmail" type="text" v-on:keydown.native="keyhandler")
+          .field
+            label.label
+              | Email Address
+            .control.has-icons-left
+              input.input(v-model.trim="forgotEmail" type="text" v-on:keydown.native="keyhandler" placeholder="Enter your Email Address")
+              span.icon.is-small.is-left
+                i.fa.fa-envelope-o
 
-        .notification.is-danger(v-if="forgotError" show)
-          | {{forgotError}}
+          .notification.is-danger(v-if="forgotError" show)
+            | {{forgotError}}
+          br
 
-        // https://bootstrap-vue.js.org/docs/components/button
-        a.button.is-primary.is-pulled-right(v-on:click="forgot")
-          //- span(v-if="forgotInProgress")
-          //-   icon(name="refresh" spin)
-          //-   | &nbsp;&nbsp;
-          | Send the Email
-        .is-pulled-right &nbsp;&nbsp;
-        a.button.is-pulled-right(v-on:click="setMode('login')") Cancel
-        br
+          // https://bootstrap-vue.js.org/docs/components/button
+          a.button.is-primary.is-pulled-right(v-on:click="forgot")
+            //- span(v-if="forgotInProgress")
+            //-   icon(name="refresh" spin)
+            //-   | &nbsp;&nbsp;
+            | Send the Email
+          .is-pulled-right &nbsp;&nbsp;
+          a.button.is-pulled-right(v-on:click="setMode('login')") Cancel
+          br
+      br
+      br
+    //- forget
 
     // Message for after the forgot email has been sent
     .card(v-if="mode === 'forgotAfter'")
@@ -285,13 +299,13 @@
       Icon
     },
     props: {
-      /**
-      *  Allow login with username (rather than email)
-      */
-      loginWithUsername: {
-        type: Boolean,
-        default: false
-      },
+      // /**
+      // *  Allow login with username (rather than email)
+      // */
+      // loginWithUsername: {
+      //   type: Boolean,
+      //   default: false
+      // },
       /**
        *  Say "sign in" rather than "log in"
        */
@@ -354,11 +368,11 @@
         registerLastName: '',
         registerPassword: '',
 
-        registerRequiresUsername: registerWithField(this, 'username'),
-        registerRequiresFirstName: registerWithField(this, 'first_name'),
-        registerRequiresMiddleName: registerWithField(this, 'middle_name'),
-        registerRequiresLastName: registerWithField(this, 'last_name'),
-        registerRequiresPassword: registerWithField(this, 'password'),
+        // registerRequiresUsername: registerWithField(this, 'username'),
+        // registerRequiresPassword: registerWithField(this, 'password'),
+        // registerRequiresFirstName: registerWithField(this, 'first_name'),
+        // registerRequiresMiddleName: registerWithField(this, 'middle_name'),
+        // registerRequiresLastName: registerWithField(this, 'last_name'),
 
         // freshCredentials: '<', // boolean, don't use JWT from cookie
 
@@ -409,7 +423,7 @@
 
         // Need to use the email address
         return this.$authservice.user.email
-      }// headerName
+      },// headerName
     //   usernameState () {
     //     return new Promise((resolve, reject) => {
     //       // return this.registerUsername.length > 2 ? null : false
@@ -420,6 +434,76 @@
     //       }
     //     })// new promise
     //   }
+      loginWithEmail: function () {
+        return !!this.optionValue('hints.login.email', true)
+      },
+      loginWithUsername: function () {
+        let val = this.optionValue('hints.usernames', false)
+        console.log(`loginWithUsername: ${val}`);
+        return !!this.optionValue('hints.usernames', false)
+      },
+      allowFacebookLogin: function () {
+        return !!this.optionValue('hints.login.facebook', false)
+      },
+      allowGithubLogin: function () {
+        return !!this.optionValue('hints.login.github', false)
+      },
+      allowGoogleLogin: function () {
+        return !!this.optionValue('hints.login.google', false)
+      },
+      allowLinkedinLogin: function () {
+        return !!this.optionValue('hints.login.linkedin', false)
+      },
+      allowTwitterLogin: function () {
+        return !!this.optionValue('hints.login.twitter', false)
+      },
+      allowSocialLogin: function () {
+        return (
+          this.allowFacebookLogin ||
+          this.allowGithubLogin ||
+          this.allowGoogleLogin ||
+          this.allowLinkedinLogin ||
+          this.allowTwitterLogin
+        )
+      },
+      loginSignupMessage: function () {
+        const site = this.optionValue('hints.sitename', 'this site')
+        let msg = `New to ${site}?`
+        // let msg = 'Don\'t have an account yet?'
+        return this.optionValue('hints.login.registerMessage', msg)
+      },
+      termsMessage: function () {
+        const site = this.optionValue('hints.sitename', 'this site')
+        let msg = `By signing up to ${site} you agree to our EULA.`
+        return this.optionValue('hints.register.termsMessage', msg)
+      },
+      termsRoute: function () {
+        return this.optionValue('hints.register.termsRoute', null)
+      },
+      registerRequiresUsername: function () {
+        return !!this.optionValue('hints.usernames', false)
+      },
+      registerRequiresPassword: function () {
+        return !!this.optionValue('hints.register.password', true)
+      },
+      registerRequiresFirstName: function () {
+        return !!this.optionValue('hints.register.firstname', false)
+      },
+      registerRequiresMiddleName: function () {
+        return !!this.optionValue('hints.register.middlename', false)
+      },
+      registerRequiresLastName: function () {
+        return !!this.optionValue('hints.register.lastname', false)
+      },
+      provideEmailLogin: function () {
+        return (this.$authservice && this.$authservice.isEmailSupported())
+      },
+      provideRegistration: function () {
+        return (this.$authservice && this.$authservice.isRegistrationSupported())
+      },
+      provideForgottenPassword: function () {
+        return (this.$authservice && this.$authservice.isForgottenPasswordSupported())
+      }
     },
     // Once the componented has been created, see if we are already
     // logged in (as shown by having a valid JWT in a cookie)
@@ -427,6 +511,12 @@
       // console.log('============= NEW COMPONENT ================')
       // console.log('\n\n\n1 ====>', this.$authservice)
       // console.log('\n\n\n2 ====>', this.$authservice.user)
+      // registerRequiresUsername: registerWithField(this, 'username'),
+      // registerRequiresPassword: registerWithField(this, 'password'),
+      // registerRequiresFirstName: registerWithField(this, 'first_name'),
+      // registerRequiresMiddleName: registerWithField(this, 'middle_name'),
+      // registerRequiresLastName: registerWithField(this, 'last_name'),
+
     },
     methods: {
 
@@ -434,6 +524,35 @@
       // login dropdown when TAB is pressed to move between fields.
       keyhandler: function (event) {
         event.stopPropagation()
+      },
+
+
+      optionValue: function (name, _default) {
+        //console.log(`optionValue(${name}, ${_default})`);
+        if (!this.$authservice) {
+          console.log(`this.$authservice not found`);
+          return _default // Should not happen
+        }
+        if (!this.$authservice.options) {
+          console.log(`this.$authservice.options not found`);
+          return _default
+        }
+        //console.log(`options=`, this.$authservice.options);
+        const names = name.split('.')
+        let obj = this.$authservice.options
+        for (var i = 0; i < names.length; i++) {
+          let name = names[i]
+          //console.log(`Looking for ${name}`);
+          //console.log(`got ${typeof obj[name]}`);
+          if (typeof obj[name] === 'undefined') {
+            // Not found
+            //console.log(`- not found`);
+            return _default
+          }
+          obj = obj[name]
+        }
+        //console.log(`found it`);
+        return obj
       },
 
       // Sign in using email/password or username/password
@@ -689,6 +808,7 @@
   //   return url
   // }
 
+
   function registerWithField (me, fieldname) {
     if (me.registerFields) {
       var fields = me.registerFields.split(',')
@@ -732,6 +852,10 @@
   .social-button {
     width: 210px;
     margin-top: 5px;
+
+    i.fa {
+      margin-top: -2px;
+    }
   }
 
 }

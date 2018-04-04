@@ -11,33 +11,6 @@ var debounce = _interopDefault(require('debounce'));
 require('vue-awesome/icons/refresh');
 var Icon = _interopDefault(require('vue-awesome/components/Icon.vue'));
 
-var Component = {
-  render: function render() {
-    var _vm = this;
-
-    var _h = _vm.$createElement;
-
-    var _c = _vm._self._c || _h;
-
-    return _c('div', [_c('h1', [_vm.location ? _c('div', {
-      staticClass: "a"
-    }, [_vm._v(_vm._s(_vm.stuff) + " on your " + _vm._s(_vm.location))]) : _c('div', {
-      staticClass: "a"
-    }, [_vm._v(_vm._s(_vm.stuff))])]), _vm._v("Here is some more stuff")]);
-  },
-  staticRenderFns: [],
-  _scopeId: 'data-v-795a1849',
-  name: 'dribble',
-  props: {
-    location: String
-  },
-  data: function data() {
-    return {
-      stuff: 'Dribble a little bit more'
-    };
-  }
-};
-
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
     _typeof = function (obj) {
@@ -97,6 +70,7 @@ console.log('(index.js) 1'); //import { install } from './install'
 console.log('(index.js) 2');
 var JWT_COOKIE_NAME = 'authservice-jwt';
 var LOGIN_TIMEOUT_DAYS = 3;
+var NETWORK_ERROR_MSG = 'Could not contact authentication server';
 
 var Authservice =
 /*#__PURE__*/
@@ -359,8 +333,22 @@ function () {
 
           _this.removeCookie(JWT_COOKIE_NAME);
 
-          reject(e.response.data.message);
-          return;
+          console.log("e=", e);
+          console.log("e.response:", e.response);
+          console.log("e.status:", e.status);
+
+          if (!e.response) {
+            // Network error from browser
+            // See https://github.com/axios/axios/issues/383#issuecomment-234079506
+            reject(NETWORK_ERROR_MSG);
+            return;
+          } else {
+            console.log("e:", e);
+            console.log("e.response:", e.response);
+            console.log("e.data:", e.data);
+            reject(e.response.data.message);
+            return;
+          }
         });
       }); // promise
     } // - login()
@@ -672,10 +660,17 @@ function () {
             return;
           }
         }).catch(function (e) {
-          // Error registering
-          var error = e.response.data && e.response.data.Error ? e.response.data.Error : 'Error while registering';
-          reject(error);
-          return;
+          if (!e.response) {
+            // Network error from browser
+            // See https://github.com/axios/axios/issues/383#issuecomment-234079506
+            reject(NETWORK_ERROR_MSG);
+            return;
+          } else {
+            // Error registering
+            var error = e.response.data && e.response.data.Error ? e.response.data.Error : 'Error while registering';
+            reject(error);
+            return;
+          }
         });
       }); // new Promise
     } // register()
@@ -768,10 +763,18 @@ function () {
             return;
           }
         }).catch(function (e) {
-          // Error sending the email
-          var error = e.response.data && e.response.data.message ? e.response.data.message : 'Error while sending email';
-          reject(error);
-          return;
+          if (!e.response) {
+            // Network error from browser
+            // See https://github.com/axios/axios/issues/383#issuecomment-234079506
+            reject(NETWORK_ERROR_MSG);
+            return;
+          } else {
+            // Error sending the email
+            var _error2 = e.response.data && e.response.data.message ? e.response.data.message : 'Error while sending email';
+
+            reject(_error2);
+            return;
+          }
         });
       });
     } // - forgot()
@@ -889,10 +892,17 @@ function () {
             return;
           }
         }).catch(function (e) {
-          // alert('Communications error: unable to determine if this username is available')
-          var error = e.response.data.Error ? e.response.data.Error : 'Could not check availability';
-          reject(error);
-          return;
+          if (!e.response) {
+            // Network error from browser
+            // See https://github.com/axios/axios/issues/383#issuecomment-234079506
+            reject(NETWORK_ERROR_MSG);
+            return;
+          } else {
+            // alert('Communications error: unable to determine if this username is available')
+            var error = e.response.data.Error ? e.response.data.Error : 'Could not check availability';
+            reject(error);
+            return;
+          }
         });
       }); // new Promise
     }
@@ -1226,7 +1236,7 @@ var AuthserviceLogin = {
       staticClass: "card"
     }, [_c('div', {
       staticClass: "card-content"
-    }, [_vm._v("You are logged in as"), _c('strong', [_vm._v(_vm._s(_vm.$authservice.user.firstname) + " " + _vm._s(_vm.$authservice.user.lastname))]), _vm.$authservice.user.avatar ? _c('img', {
+    }, [_vm._v("You are logged in as "), _c('strong', [_vm._v(_vm._s(_vm.$authservice.user.firstname) + " " + _vm._s(_vm.$authservice.user.lastname))]), _vm.$authservice.user.avatar ? _c('img', {
       attrs: {
         "src": _vm.$authservice.user.avatar,
         "alt": ""
@@ -1235,7 +1245,13 @@ var AuthserviceLogin = {
       attrs: {
         "to": "/applications"
       }
-    }, [_vm._v("Settings")]), _c('br'), _vm._v("(v-on:click=\"doSignout()\") " + _vm._s(_vm.signin ? 'Sign out' : 'Logout'))], 1)]) : _vm._e(), _vm.mode === 'register' ? _c('div', {
+    }, [_vm._v("Settings")]), _c('br'), _c('a', {
+      on: {
+        "click": function click($event) {
+          _vm.doSignout();
+        }
+      }
+    }, [_vm._v(_vm._s(_vm.signin ? 'Sign out' : 'Logout'))])], 1)]) : _vm._e(), _vm.mode === 'register' ? _c('div', {
       staticClass: "card"
     }, [_vm._m(4), _c('div', {
       staticClass: "card-content"
@@ -2252,16 +2268,13 @@ var AuthserviceLogin = {
 // }
 
 //import Vue from 'vue'
-
+// export default Vue => Vue.component(Component.name, Component)
 console.log("Before Authservice");
-console.log("After Authservice", Authservice); // import AuthserviceNavbar from './components/AuthserviceNavbar'
+console.log("After Authservice", Authservice);
 var _authservice = null;
 
 function install$1(Vue, options) {
   console.log('my-component.install()', options);
-  Vue.component(Component.name, Component);
-  Vue.component('authservice-navbar', Component);
-  console.log('done dummies');
 
   if (_authservice) {
     console.error("Vue.use(Authservice) has already been called.");

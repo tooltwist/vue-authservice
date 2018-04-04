@@ -1,13 +1,8 @@
 //import Vue from 'vue'
-import Component from './components/Dribble.vue'
 // export default Vue => Vue.component(Component.name, Component)
 
-console.log(`Before Authservice`)
-import Authservice from './src/Authservice'
-console.log(`After Authservice`, Authservice)
-
-// import AuthserviceNavbar from './components/AuthserviceNavbar'
-import AuthserviceLogin from './components/AuthserviceLogin.vue'
+import Authservice from './Authservice'
+import AuthserviceLogin from '../components/AuthserviceLogin.vue'
 
 export let _Vue
 
@@ -16,10 +11,6 @@ let _authservice = null
 
 function install (Vue, options) {
   console.log('my-component.install()', options)
-
-  Vue.component(Component.name, Component)
-  Vue.component('authservice-navbar', Component)
-  console.log('done dummies')
 
   if (_authservice) {
     console.error("Vue.use(Authservice) has already been called.")
@@ -111,10 +102,17 @@ function install (Vue, options) {
   // Vue.component('authservice-firstname', AuthserviceFirstname)
   // Vue.component('authservice-fullname', AuthserviceFullName)
 
+  return _authservice
 }
 
 const obj = {
   install: install
 }
+
+Object.defineProperty(obj, '_authservice', {
+  get: function() {
+      return _authservice;
+  }
+});
 
 export default obj

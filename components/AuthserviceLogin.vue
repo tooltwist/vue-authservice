@@ -101,15 +101,15 @@
     //
     .card(v-if="mode === 'loggedIn'")
       .card-content
-        | You are logged in as
+        | You are logged in as&nbsp;
         strong {{$authservice.user.firstname}}  {{$authservice.user.lastname}}
         //- b-dropdown-item(aria-describedby="header1") Another action
 
         img(v-if="$authservice.user.avatar" :src="$authservice.user.avatar", alt="")
         br
-        router-link(to='/applications') Settings
+        router-link(to='/app-settings/applications') Settings
         br
-        | (v-on:click="doSignout()") {{signin ? 'Sign out' : 'Logout'}}
+        a(v-on:click="doSignout()") {{signin ? 'Sign out' : 'Logout'}}
         // | {{$authservice.user}}
 
 

@@ -23,6 +23,7 @@ console.log('(index.js) 2')
 
 const JWT_COOKIE_NAME = 'authservice-jwt'
 const LOGIN_TIMEOUT_DAYS = 3
+const NETWORK_ERROR_MSG = 'Could not contact authentication server'
 
 class Authservice {
   // static install: (Vue) => void;
@@ -149,30 +150,34 @@ class Authservice {
   checkInitialLoginStatus (debug) {
     debug = true
     console.log('+++++ checkInitialLoginStatus ++++++')
-    // See if we have a AUTHSERVICE_JWT in the URL to this page
-    let jwt = this.getURLParameterByName("AUTHSERVICE_JWT")
-    if (jwt) {
-      if (debug) {
-        console.log("***")
-        console.log("***")
-        console.log("*** AUTHSERVICE_JWT IN URL")
-        console.log("***")
-        console.log("***")
-      }
-      const isFromCookie = false
-      if (this.setCurrentUserFromJWT(jwt, isFromCookie)) {
-      // Remember this JWT in a cookie for the next page.
-        this.setCookie(JWT_COOKIE_NAME, jwt, LOGIN_TIMEOUT_DAYS)
-        return true
-      } else {
-        // Invalid JWT
-        this.removeCookie(JWT_COOKIE_NAME)
-        return false
+
+    // If this is the browser, look for the JWT as a URL parameter
+    if (window) {
+      // See if we have AUTHSERVICE_JWT in the URL to this page
+      let jwt = this.getURLParameterByName("AUTHSERVICE_JWT")
+      if (jwt) {
+        if (debug) {
+          console.log("***")
+          console.log("***")
+          console.log("*** AUTHSERVICE_JWT IN URL")
+          console.log("***")
+          console.log("***")
+        }
+        const isFromCookie = false
+        if (this.setCurrentUserFromJWT(jwt, isFromCookie)) {
+        // Remember this JWT in a cookie for the next page.
+          this.setCookie(JWT_COOKIE_NAME, jwt, LOGIN_TIMEOUT_DAYS)
+          return true
+        } else {
+          // Invalid JWT
+          this.removeCookie(JWT_COOKIE_NAME)
+          return false
+        }
       }
     }
 
     // See if we have a cookie containing the current JWT
-    jwt = this.getCookie(JWT_COOKIE_NAME)
+    let jwt = this.getCookie(JWT_COOKIE_NAME)
     if (jwt) {
       if (debug) {
         console.log("***")
@@ -269,8 +274,21 @@ class Authservice {
           const isFromCache = false
           this.setCurrentUserFromJWT(null, isFromCache)
           this.removeCookie(JWT_COOKIE_NAME)
-          reject(e.response.data.message)
-          return
+          console.log(`e=`, e);
+          console.log(`e.response:`, e.response);
+          console.log(`e.status:`, e.status);
+          if (!e.response) {
+            // Network error from browser
+            // See https://github.com/axios/axios/issues/383#issuecomment-234079506
+            reject(NETWORK_ERROR_MSG)
+            return
+          } else {
+            console.log(`e:`, e);
+            console.log(`e.response:`, e.response);
+            console.log(`e.data:`, e.data);
+            reject(e.response.data.message)
+            return
+          }
         })
     })// promise
   }// - login()
@@ -542,10 +560,18 @@ class Authservice {
           }
         })
         .catch(e => {
-          // Error registering
-          const error = (e.response.data && e.response.data.Error) ? e.response.data.Error : 'Error while registering'
-          reject(error)
-          return
+          if (!e.response) {
+            // Network error from browser
+            // See https://github.com/axios/axios/issues/383#issuecomment-234079506
+            reject(NETWORK_ERROR_MSG)
+            return
+          } else {
+            // Error registering
+            const error = (e.response.data && e.response.data.Error) ? e.response.data.Error : 'Error while registering'
+            reject(error)
+            return
+          }
+
         })
     })// new Promise
   }// register()
@@ -629,10 +655,17 @@ class Authservice {
           }
         })
         .catch(e => {
-          // Error sending the email
-          const error = (e.response.data && e.response.data.message) ? e.response.data.message : 'Error while sending email'
-          reject(error)
-          return
+          if (!e.response) {
+            // Network error from browser
+            // See https://github.com/axios/axios/issues/383#issuecomment-234079506
+            reject(NETWORK_ERROR_MSG)
+            return
+          } else {
+            // Error sending the email
+            const error = (e.response.data && e.response.data.message) ? e.response.data.message : 'Error while sending email'
+            reject(error)
+            return
+          }
         })
     })
   }// - forgot()
@@ -745,10 +778,17 @@ class Authservice {
           }
         })
         .catch(e => {
-          // alert('Communications error: unable to determine if this username is available')
-          const error = e.response.data.Error ? e.response.data.Error : 'Could not check availability'
-          reject(error)
-          return
+          if (!e.response) {
+            // Network error from browser
+            // See https://github.com/axios/axios/issues/383#issuecomment-234079506
+            reject(NETWORK_ERROR_MSG)
+            return
+          } else {
+            // alert('Communications error: unable to determine if this username is available')
+            const error = e.response.data.Error ? e.response.data.Error : 'Could not check availability'
+            reject(error)
+            return
+          }
         })
     })// new Promise
   }

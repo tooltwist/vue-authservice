@@ -1,14 +1,15 @@
 {
   "name": "vue-authservice",
   "version": "0.0.5",
-  "zmain": "index.js",
-  "main": "dist/vue-authservice.cjs.js",
+  "main": "src/main.js",
+  "zmain": "dist/vue-authservice.cjs.js",
+  "zmodule": "dist/vue-authservice.cjs.js",
   "license": "MIT",
   "description": "Test junk",
   "author": "Philip Callender <philcal@mac.com>",
   "private": false,
   "scripts": {
-    "build": "yarn bili index.js --plugin vue --plugin pug -plugin flow",
+    "build": "yarn bili src/main.js --plugin vue --plugin pug -plugin flow",
     "patch-release": "npm version patch && npm publish && git push --follow-tags"
   },
   "keywords": [

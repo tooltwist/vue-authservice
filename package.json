@@ -1,6 +1,6 @@
 {
   "name": "vue-authservice",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "zmain": "src/main.js",
   "main": "dist/vue-authservice.cjs.js",
   "zmodule": "dist/vue-authservice.cjs.js",

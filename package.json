@@ -22,7 +22,8 @@
     "url": "https://github.com/tooltwist/FXKN15ZOR.git"
   },
   "files": [
-    "dist/"
+    "dist/",
+    "src"
   ],
   "devDependencies": {
     "babel-helper-vue-jsx-merge-props": "^2.0.3",

@@ -2,7 +2,7 @@
 // export default Vue => Vue.component(Component.name, Component)
 
 import Authservice from './Authservice'
-import AuthserviceLogin from '../components/AuthserviceLogin.vue'
+import AuthserviceLogin from './components/AuthserviceLogin.vue'
 
 export let _Vue
 

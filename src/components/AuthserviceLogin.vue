@@ -1,105 +1,200 @@
-// Documentation for this component is automatically documented using vue-styleguidist.
-// See https://github.com/vue-styleguidist/vue-styleguidist/tree/master/docs
-
 <template lang="pug">
 
-  b-nav-item-dropdown(:text="($authservice.user!=null) ? (headerName) : (signin ? 'Sign in' : 'Login')" right)
-    //
-    //  This component uses bootstrap-vue
-    //  (See https://bootstrap-vue.js.org/docs)
-    //
+  .authservice-login
+    //div(:text="($authservice.user!=null) ? (headerName) : (signin ? 'Sign in' : 'Login')" right)
+
+    .card(v-if="mode === 'login'" href="")
+      header.card-header
+        p.card-header-title
+          | Login / Sign In
+        //a.card-header-icon(href="#" aria-label="more options")
+        //  .icon
+        //    i.fas.fa-angle-down(aria-hidden="true")
+      .card-content
+        .content
+          div.has-text-centered
+            div(v-if="allowFacebookLogin")
+              a.button.social-button.is-primary(v-on:click="facebookLogin()")
+                i.fa.fa-facebook-f.has-text-white
+                | &nbsp; Login with Facebook
+              br
+            div(v-if="allowGoogleLogin")
+              a.button.social-button.is-primary(v-on:click="googleLogin()")
+                i.fa.fa-google.has-text-white
+                | &nbsp; Login with Google
+              br
+            div(v-if="allowGithubLogin")
+              a.button.social-button.is-primary(:variant="'secondary'" v-on:click="githubLogin()" tabindex="38")
+                i.fa.fa-github.has-text-white
+                | &nbsp; Login with Github
+              br
+            div(v-if="allowLinkedinLogin")
+              a.button.social-button.is-primary(:variant="'secondary'" v-on:click="githubLogin()" tabindex="38")
+                i.fa.fa-linkedin.has-text-white
+                | &nbsp; Login with LinkedIn
+              br
+            div(v-if="allowTwitterLogin")
+              a.button.social-button.is-primary(:variant="'secondary'" v-on:click="githubLogin()" tabindex="38")
+                i.fa.fa-twitter.has-text-white
+                | &nbsp; Login with Twitter
+              br
+          div.has-text-centered(v-if="allowSocialLogin && loginWithEmail")
+            br
+            b - or -&nbsp;&nbsp;&nbsp;
+            br
+            br
+
+          div(v-if="loginWithEmail")
+            .field(v-if="loginWithUsername")
+              label.label User Name or Email Address
+              .control.has-icons-left
+                input.input(v-model.trim="email" type="text" v-on:keydown.native="keyhandler" placeholder="Enter your User Name or Email Address")
+                span.icon.is-small.is-left
+                  i.fa.fa-user
+            .field(v-else)
+              label.label Email
+              .control.has-icons-left
+                input.input(v-model.trim="email" type="text" v-on:keydown.native="keyhandler" placeholder="Enter an Account Email")
+                span.icon.is-small.is-left
+                  i.fa.fa-envelope-o
+
+            .field
+              label.label Password
+              .control.has-icons-left
+                input.input(v-model.trim="password" type="password" v-on:keydown.native="keyhandler" autocomplete="current-password" placeholder="Enter your Password")
+                span.icon.is-small.is-left
+                  i.fa.fa-lock
+
+            br
+            .notification.is-danger(v-if="loginError")
+              // button.delete
+              | {{loginError}}
+              br
+
+
+            a.button.is-primary.is-pulled-right(v-on:click="doLogin" tabindex="33")
+              | Login
+            a(v-if="provideForgottenPassword" href="#" v-on:click="setMode('forgot')")
+              | Forgot Login Info?
+          // loginWithEmail
+
+          //a.button.is-outlined(:size="'sm'" :variant="'link'" v-on:click="setMode('forgot')") Forgot password
+          //| &nbsp;
+          //a.button.is-outlined(:size="'sm'" :variant="'link'" v-on:click="setMode('register')") Sign Up
+          br
+
+      .card-footer(v-if="loginWithEmail && provideRegistration")
+        .card-footer-item
+          | {{loginSignupMessage}} &nbsp;&nbsp;
+          a(href="#" v-on:click="setMode('register')") Sign up
+
+
+
+
+      //- footer.card-footer
+      //-   a.card-footer-item(href="#") Save
+      //-   a.card-footer-item(href="#") Edit
+      //-   a.card-footer-item(href="#") Delete
 
     //
     //  Logged in mode
     //
-    b-form(v-if="mode === 'loggedIn'")
-      b-dropdown-header
+    .card(v-if="mode === 'loggedIn'")
+      .card-content
+        | You are logged in as&nbsp;
         strong {{$authservice.user.firstname}}  {{$authservice.user.lastname}}
         //- b-dropdown-item(aria-describedby="header1") Another action
 
         img(v-if="$authservice.user.avatar" :src="$authservice.user.avatar", alt="")
-      b-dropdown-item
-        router-link(to='/applications') Settings
-      b-dropdown-divider
-      //- span(v-if="!user.avatar").fa-stack.fa
-      //-   i.fa.fa-circle.fa-stack-2x
-      //-   i.fa.fa-user.fa-stack-1x.fa-inverse
-      //-   | &nbsp;{{user.firstname}}
-      // VVVV User defined menu options
-      b-dropdown-item(v-on:click="doSignout()") {{signin ? 'Sign out' : 'Logout'}}
-      // | {{$authservice.user}}
+        br
+        router-link(to='/app-settings/applications') Settings
+        br
+        a(v-on:click="doSignout()") {{signin ? 'Sign out' : 'Logout'}}
+        // | {{$authservice.user}}
 
 
-    //
-    // Login mode
-    //
-    // See:
-    //  https://bootstrap-vue.js.org/docs/components/alert
-    //  https://bootstrap-vue.js.org/docs/components/button
-    //
-    b-form.login-form(v-if="mode === 'login'" href="")
-      b-dropdown-header
-        h4 Login
-        b-form-group(label="Username / Email")
-          b-form-input(v-model.trim="email" type="text" v-on:keydown.native="keyhandler" tabindex="31")
-        b-form-group(label="Password")
-          b-form-input(v-model.trim="password" type="password" v-on:keydown.native="keyhandler" tabindex="32" autocomplete="current-password")
-        b-alert(v-if="loginError" variant="danger" show) {{loginError}}
-        b-button(variant="primary" v-on:click="doLogin" tabindex="33") Login
-      b-dropdown-divider
-      b-dropdown-header
-        b-button.my-button(:size="'sm'" :variant="'link'" v-on:click="setMode('forgot')" tabindex="34") Forgot password
-        br
-        b-button(:size="'sm'" :variant="'link'" v-on:click="setMode('register')" tabindex="35") Register
-      b-dropdown-divider
-      b-dropdown-header
-        b-button.my-button(:variant="'primary'" v-on:click="facebookLogin()" tabindex="36") Login with Facebook
-        br
-        b-button.my-button(:variant="'danger'" v-on:click="googleLogin()" tabindex="37") Login with Google
-        br
-        b-button.my-button(:variant="'secondary'" v-on:click="githubLogin()" tabindex="38") Login with Github
-    //- b-dropdown-header
 
     //
     // Register a new user
     //
     // https://bootstrap-vue.js.org/docs/components/button
-    b-form.register-form(v-if="mode === 'register'")
-      b-dropdown-header
-        h4 Register
-        .register-text
-          | Hi!
-          | Enter your details and we'll be happy to sign you up.
+    .card(v-if="mode === 'register'")
+      header.card-header
+        p.card-header-title SIGN UP
+      .card-content
 
         // Username
-        b-form-group(v-if="registerRequiresUsername" label="Username" placeholder="Choose a user name")
-          b-form-input(v-model.trim="registerUsername" type="text" v-on:keydown.native="keyhandler" v-on:input="validateUsername" :state="registerUsernameState" autocomplete="off")
-          b-form-feedback#input-feedback
+        .field(v-if="registerRequiresUsername")
+          label.label
+            | User Name
+          .control.has-icons-left
+            input.input(v-model.trim="registerUsername" type="text" v-on:keydown.native="keyhandler" v-on:input="validateUsername" :state="registerUsernameState" autocomplete="off" placeholder="Choose a user name")
+            span.icon.is-small.is-left
+              i.fa.fa-user
+
+          .notification.is-danger(v-if="registerUsernameError")
             // This will only be shown if the preceeding input has an invalid state
             | {{registerUsernameError}}
+            br
 
         // Email
-        b-form-group(label="Email")
-          b-form-input(v-model.trim="registerEmail" type="text" v-on:keydown.native="keyhandler")
-        b-form-group(v-if="registerRequiresPassword" label="Password")
-          b-form-input(v-model.trim="registerPassword" type="password" v-on:keydown.native="keyhandler" autocomplete="off")
-        b-form-group(v-if="registerRequiresFirstName" label="First name")
-          b-form-input(v-model.trim="registerFirstName" v-on:keydown.native="keyhandler")
-        b-form-group(v-if="registerRequiresMiddleName" label="Middle name")
-          b-form-input(v-model.trim="registerMiddleName" v-on:keydown.native="keyhandler")
-        b-form-group(v-if="registerRequiresLastName" label="Last name")
-          b-form-input(v-model.trim="registerLastName" v-on:keydown.native="keyhandler")
+        .field
+          label.label
+            | Email
+          .control.has-icons-left
+            input.input(v-model.trim="registerEmail" type="text" v-on:keydown.native="keyhandler" placeholder="Enter your email address")
+            span.icon.is-small.is-left
+              i.fa.fa-envelope-o
+
+        .field(v-if="registerRequiresPassword")
+          label.label
+            | Password
+          .control.has-icons-left
+            input.input(v-model.trim="registerPassword" type="password" v-on:keydown.native="keyhandler" autocomplete="off" placeholder="Choose a password")
+            span.icon.is-small.is-left
+              i.fa.fa-lock
+
+        .field(v-if="registerRequiresFirstName")
+          label.label
+            | First name
+          .control
+            input.input(v-model.trim="registerFirstName" v-on:keydown.native="keyhandler")
+
+        .field(v-if="registerRequiresMiddleName")
+          label.label
+            | Middle name
+          .control
+            input.input(v-model.trim="registerMiddleName" v-on:keydown.native="keyhandler")
+
+        .field(v-if="registerRequiresLastName")
+          label.label
+            | Last name
+          .control
+            input.input(v-model.trim="registerLastName" v-on:keydown.native="keyhandler")
+
+        br
         //- b-alert(variant="danger" show) Login Error
-      b-dropdown-divider
-      b-dropdown-header
-        b-button(variant="primary" v-on:click="register") Register
-        b-button(:size="'sm'" :variant="'link'" v-on:click="setMode('login')") Cancel
-      //- b-dropdown-header
-    //- b-form
+
+        a.button.is-primary.is-pulled-right(v-on:click="register")
+          | SIGN UP
+        span.is-pulled-left
+          | Already have an account? &nbsp;
+          a(href="#" v-on:click="setMode('login')") Log in
+        br
+
+
+      .card-footer(v-if="termsMessage")
+        .card-footer-item.has-text-centered
+          | {{termsMessage}}
+          .is-small(v-if="termsRoute")
+            | &nbsp;&nbsp;(
+            a.is-small(:href="termsRoute") link
+            | )
+
 
     // Message for after the register email has been sent
-    b-form(v-if="mode === 'registerAfter'")
-      b-dropdown-header
+    .card(v-if="mode === 'registerAfter'")
+      .b-dropdown-header
         // h4 Registration
         p
           | Congratulations, you now have a user account.
@@ -107,52 +202,68 @@
         p
           | Please take a moment to check your email and complete
           | the registration process.
-      b-dropdown-divider
-      b-dropdown-header
+      .b-dropdown-divider
+      .b-dropdown-header
         // Should just close the dropdown VVVVV
-        // b-button(:size="'sm'" :variant="'primary'" v-on:click="setMode('login')") Ok
-        b-button(type="submit" :size="'sm'" :variant="'primary'" v-on:click="setMode('login')").btn.btn-default ok
-    //- b-form
+        // a.button(:size="'sm'" :variant="'primary'" v-on:click="setMode('login')") Ok
+        a.button(type="submit" :size="'sm'" :variant="'primary'" v-on:click="setMode('login')").btn.btn-default ok
+    //- .b-form
 
     //
     // Forgot mode
     //
-    // See:
-    //  https://bootstrap-vue.js.org/docs/components/alert
-    //  https://www.npmjs.com/package/vue-icons
-    //
-    b-form.forgot-form(v-if="mode === 'forgot'")
-      b-dropdown-header
-        h4 Forgotten Password
-        .forgot-text
-          | Forgot your password? No problem. Enter your email address below and we'll
-          | well send an email with a link to reset your password.
-        b-form-group(label="Email Address")
-          b-form-input(v-model.trim="forgotEmail" type="text" v-on:keydown.native="keyhandler")
-        b-alert(v-if="forgotError" variant="danger" show) {{forgotError}}
-      b-dropdown-divider
-      b-dropdown-header
-        // https://bootstrap-vue.js.org/docs/components/button
-        b-button(variant="primary" v-on:click="forgot")
-          span(v-if="forgotInProgress")
-            icon(name="refresh" spin)
-            | &nbsp;&nbsp;
-          | Send the Email
-        | &nbsp;
-        b-button(:size="'sm'" :variant="'link'" right v-on:click="setMode('login')") Cancel
-    //- b-dropdown-header
+    div(v-if="mode === 'forgot'")
+      br
+      br
+      .card
+        header.card-header
+          p.card-header-title
+            | Forgot your Login Information?
+        .card-content
+          | No problem. Enter your email address
+          | &nbsp;and we'll well send an email with recovery instructions.
+          br
+          br
+
+          .field
+            label.label
+              | Email Address
+            .control.has-icons-left
+              input.input(v-model.trim="forgotEmail" type="text" v-on:keydown.native="keyhandler" placeholder="Enter your Email Address")
+              span.icon.is-small.is-left
+                i.fa.fa-envelope-o
+
+          .notification.is-danger(v-if="forgotError" show)
+            | {{forgotError}}
+          br
+
+          // https://bootstrap-vue.js.org/docs/components/button
+          a.button.is-primary.is-pulled-right(v-on:click="forgot")
+            //- span(v-if="forgotInProgress")
+            //-   icon(name="refresh" spin)
+            //-   | &nbsp;&nbsp;
+            | Send the Email
+          .is-pulled-right &nbsp;&nbsp;
+          a.button.is-pulled-right(v-on:click="setMode('login')") Cancel
+          br
+      br
+      br
+    //- forget
 
     // Message for after the forgot email has been sent
-    b-form.forgot-form(v-if="mode === 'forgotAfter'")
-      b-dropdown-header
-        h4 Forgotten Password
-        .forgot-text
-          | We have sent an email to {{forgotEmail}} with
-          | instructions to reset your password.
-      b-dropdown-divider
-      b-dropdown-header
+    .card(v-if="mode === 'forgotAfter'")
+      header.card-header
+        p.card-header-title
+          | Forgotten Password
+      .card-content
+        | We have sent an email to {{forgotEmail}} with
+        | instructions to reset your password.
+        br
+        br
+
         // Should just close the dropdown VVVVV
-        b-button(:size="'sm'" :variant="'primary'" v-on:click="setMode('login')") Ok
+        a.button.is-primary.is-pulled-right(v-on:click="setMode('login')") Ok
+        br
     //- div
 
   //- b-nav-item-dropdown
@@ -180,18 +291,18 @@
    *  @author Philip Callender
    */
   export default {
-    name: 'authservice-navbar',
+    name: 'authservice-login',
     components: {
       Icon
     },
     props: {
-      /**
-      *  Allow login with username (rather than email)
-      */
-      loginWithUsername: {
-        type: Boolean,
-        default: false
-      },
+      // /**
+      // *  Allow login with username (rather than email)
+      // */
+      // loginWithUsername: {
+      //   type: Boolean,
+      //   default: false
+      // },
       /**
        *  Say "sign in" rather than "log in"
        */
@@ -232,8 +343,9 @@
     data () {
       // console.log('data(): this=', this)
       return {
-        email: 'philcal@mac.com',
-        password: 'mouse123',
+        username: '',
+        email: '',
+        password: '',
         loggedIn: false,
         mode: (this.$authservice && this.$authservice.user) ? 'loggedIn' : 'login',
 
@@ -253,11 +365,11 @@
         registerLastName: '',
         registerPassword: '',
 
-        registerRequiresUsername: registerWithField(this, 'username'),
-        registerRequiresFirstName: registerWithField(this, 'first_name'),
-        registerRequiresMiddleName: registerWithField(this, 'middle_name'),
-        registerRequiresLastName: registerWithField(this, 'last_name'),
-        registerRequiresPassword: registerWithField(this, 'password'),
+        // registerRequiresUsername: registerWithField(this, 'username'),
+        // registerRequiresPassword: registerWithField(this, 'password'),
+        // registerRequiresFirstName: registerWithField(this, 'first_name'),
+        // registerRequiresMiddleName: registerWithField(this, 'middle_name'),
+        // registerRequiresLastName: registerWithField(this, 'last_name'),
 
         // freshCredentials: '<', // boolean, don't use JWT from cookie
 
@@ -308,7 +420,7 @@
 
         // Need to use the email address
         return this.$authservice.user.email
-      }// headerName
+      },// headerName
     //   usernameState () {
     //     return new Promise((resolve, reject) => {
     //       // return this.registerUsername.length > 2 ? null : false
@@ -319,6 +431,76 @@
     //       }
     //     })// new promise
     //   }
+      loginWithEmail: function () {
+        return !!this.optionValue('hints.login.email', true)
+      },
+      loginWithUsername: function () {
+        let val = this.optionValue('hints.usernames', false)
+        console.log(`loginWithUsername: ${val}`);
+        return !!this.optionValue('hints.usernames', false)
+      },
+      allowFacebookLogin: function () {
+        return !!this.optionValue('hints.login.facebook', false)
+      },
+      allowGithubLogin: function () {
+        return !!this.optionValue('hints.login.github', false)
+      },
+      allowGoogleLogin: function () {
+        return !!this.optionValue('hints.login.google', false)
+      },
+      allowLinkedinLogin: function () {
+        return !!this.optionValue('hints.login.linkedin', false)
+      },
+      allowTwitterLogin: function () {
+        return !!this.optionValue('hints.login.twitter', false)
+      },
+      allowSocialLogin: function () {
+        return (
+          this.allowFacebookLogin ||
+          this.allowGithubLogin ||
+          this.allowGoogleLogin ||
+          this.allowLinkedinLogin ||
+          this.allowTwitterLogin
+        )
+      },
+      loginSignupMessage: function () {
+        const site = this.optionValue('hints.sitename', 'this site')
+        let msg = `New to ${site}?`
+        // let msg = 'Don\'t have an account yet?'
+        return this.optionValue('hints.login.registerMessage', msg)
+      },
+      termsMessage: function () {
+        const site = this.optionValue('hints.sitename', 'this site')
+        let msg = `By signing up to ${site} you agree to our EULA.`
+        return this.optionValue('hints.register.termsMessage', msg)
+      },
+      termsRoute: function () {
+        return this.optionValue('hints.register.termsRoute', null)
+      },
+      registerRequiresUsername: function () {
+        return !!this.optionValue('hints.usernames', false)
+      },
+      registerRequiresPassword: function () {
+        return !!this.optionValue('hints.register.password', true)
+      },
+      registerRequiresFirstName: function () {
+        return !!this.optionValue('hints.register.firstname', false)
+      },
+      registerRequiresMiddleName: function () {
+        return !!this.optionValue('hints.register.middlename', false)
+      },
+      registerRequiresLastName: function () {
+        return !!this.optionValue('hints.register.lastname', false)
+      },
+      provideEmailLogin: function () {
+        return (this.$authservice && this.$authservice.isEmailSupported())
+      },
+      provideRegistration: function () {
+        return (this.$authservice && this.$authservice.isRegistrationSupported())
+      },
+      provideForgottenPassword: function () {
+        return (this.$authservice && this.$authservice.isForgottenPasswordSupported())
+      }
     },
     // Once the componented has been created, see if we are already
     // logged in (as shown by having a valid JWT in a cookie)
@@ -326,6 +508,12 @@
       // console.log('============= NEW COMPONENT ================')
       // console.log('\n\n\n1 ====>', this.$authservice)
       // console.log('\n\n\n2 ====>', this.$authservice.user)
+      // registerRequiresUsername: registerWithField(this, 'username'),
+      // registerRequiresPassword: registerWithField(this, 'password'),
+      // registerRequiresFirstName: registerWithField(this, 'first_name'),
+      // registerRequiresMiddleName: registerWithField(this, 'middle_name'),
+      // registerRequiresLastName: registerWithField(this, 'last_name'),
+
     },
     methods: {
 
@@ -333,6 +521,35 @@
       // login dropdown when TAB is pressed to move between fields.
       keyhandler: function (event) {
         event.stopPropagation()
+      },
+
+
+      optionValue: function (name, _default) {
+        //console.log(`optionValue(${name}, ${_default})`);
+        if (!this.$authservice) {
+          console.log(`this.$authservice not found`);
+          return _default // Should not happen
+        }
+        if (!this.$authservice.options) {
+          console.log(`this.$authservice.options not found`);
+          return _default
+        }
+        //console.log(`options=`, this.$authservice.options);
+        const names = name.split('.')
+        let obj = this.$authservice.options
+        for (var i = 0; i < names.length; i++) {
+          let name = names[i]
+          //console.log(`Looking for ${name}`);
+          //console.log(`got ${typeof obj[name]}`);
+          if (typeof obj[name] === 'undefined') {
+            // Not found
+            //console.log(`- not found`);
+            return _default
+          }
+          obj = obj[name]
+        }
+        //console.log(`found it`);
+        return obj
       },
 
       // Sign in using email/password or username/password
@@ -588,6 +805,7 @@
   //   return url
   // }
 
+
   function registerWithField (me, fieldname) {
     if (me.registerFields) {
       var fields = me.registerFields.split(',')
@@ -609,6 +827,37 @@
 </script>
 
 <style scoped lang="scss">
+
+.authservice-login {
+  .card {
+    width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 10px;
+    background-color: #f2f2f2;
+  }
+
+  footer {
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+
+  .my-button {
+    margin-top: 8px;
+  }
+
+  .social-button {
+    width: 210px;
+    margin-top: 5px;
+
+    i.fa {
+      margin-top: -2px;
+    }
+  }
+
+}
+
+
 h4 {
   color: black;
 }
@@ -635,8 +884,5 @@ label {
 .register-form {
   width: 350px;
   word-wrap: break-word;
-}
-.my-button {
-  margin-top: 8px;
 }
 </style>

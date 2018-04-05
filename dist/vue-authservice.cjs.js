@@ -194,34 +194,37 @@ function () {
     key: "checkInitialLoginStatus",
     value: function checkInitialLoginStatus(debug) {
       debug = true;
-      console.log('+++++ checkInitialLoginStatus ++++++'); // See if we have a AUTHSERVICE_JWT in the URL to this page
+      console.log('+++++ checkInitialLoginStatus ++++++'); // If this is the browser, look for the JWT as a URL parameter
 
-      var jwt = this.getURLParameterByName("AUTHSERVICE_JWT");
+      if (window) {
+        // See if we have AUTHSERVICE_JWT in the URL to this page
+        var _jwt = this.getURLParameterByName("AUTHSERVICE_JWT");
 
-      if (jwt) {
-        if (debug) {
-          console.log("***");
-          console.log("***");
-          console.log("*** AUTHSERVICE_JWT IN URL");
-          console.log("***");
-          console.log("***");
-        }
+        if (_jwt) {
+          if (debug) {
+            console.log("***");
+            console.log("***");
+            console.log("*** AUTHSERVICE_JWT IN URL");
+            console.log("***");
+            console.log("***");
+          }
 
-        var _isFromCookie = false;
+          var _isFromCookie = false;
 
-        if (this.setCurrentUserFromJWT(jwt, _isFromCookie)) {
-          // Remember this JWT in a cookie for the next page.
-          this.setCookie(JWT_COOKIE_NAME, jwt, LOGIN_TIMEOUT_DAYS);
-          return true;
-        } else {
-          // Invalid JWT
-          this.removeCookie(JWT_COOKIE_NAME);
-          return false;
+          if (this.setCurrentUserFromJWT(_jwt, _isFromCookie)) {
+            // Remember this JWT in a cookie for the next page.
+            this.setCookie(JWT_COOKIE_NAME, _jwt, LOGIN_TIMEOUT_DAYS);
+            return true;
+          } else {
+            // Invalid JWT
+            this.removeCookie(JWT_COOKIE_NAME);
+            return false;
+          }
         }
       } // See if we have a cookie containing the current JWT
 
 
-      jwt = this.getCookie(JWT_COOKIE_NAME);
+      var jwt = this.getCookie(JWT_COOKIE_NAME);
 
       if (jwt) {
         if (debug) {
@@ -1243,7 +1246,7 @@ var AuthserviceLogin = {
       }
     }) : _vm._e(), _c('br'), _c('router-link', {
       attrs: {
-        "to": "/applications"
+        "to": "/app-settings/applications"
       }
     }, [_vm._v("Settings")]), _c('br'), _c('a', {
       on: {
@@ -2268,9 +2271,6 @@ var AuthserviceLogin = {
 // }
 
 //import Vue from 'vue'
-// export default Vue => Vue.component(Component.name, Component)
-console.log("Before Authservice");
-console.log("After Authservice", Authservice);
 var _authservice = null;
 
 function install$1(Vue, options) {
@@ -2356,10 +2356,17 @@ function install$1(Vue, options) {
   // Vue.component('my-component', MyComponent)
   // Vue.component('authservice-firstname', AuthserviceFirstname)
   // Vue.component('authservice-fullname', AuthserviceFullName)
+
+  return _authservice;
 }
 
 var obj = {
   install: install$1
 };
+Object.defineProperty(obj, '_authservice', {
+  get: function get() {
+    return _authservice;
+  }
+});
 
 exports.default = obj;

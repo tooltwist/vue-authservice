@@ -724,9 +724,19 @@ class Authservice {
         privileges: ident.privileges,
         status: ident.status,
         timezone: ident.timezone,
-        username: ident.username
+        username: ident.username,
+        rights: [ ]
         // type: ident.type,
       }
+      ident.rights.forEach(r => {
+        const right = {
+          realm: r.realm,
+          name: r.name,
+          sequence: r.sequence,
+          value: r.value
+        }
+        user.rights.push(right)
+      })
 
       // console.log('Setting user to ', user)
       this.user = user

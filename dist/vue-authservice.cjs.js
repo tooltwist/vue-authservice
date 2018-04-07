@@ -839,10 +839,20 @@ function () {
           privileges: ident.privileges,
           status: ident.status,
           timezone: ident.timezone,
-          username: ident.username // type: ident.type,
-          // console.log('Setting user to ', user)
+          username: ident.username,
+          rights: [] // type: ident.type,
 
         };
+        ident.rights.forEach(function (r) {
+          var right = {
+            realm: r.realm,
+            name: r.name,
+            sequence: r.sequence,
+            value: r.value
+          };
+          user.rights.push(right);
+        }); // console.log('Setting user to ', user)
+
         this.user = user;
         this.jwt = jwt;
         this.fromCache = fromCookie;
@@ -1762,7 +1772,7 @@ var AuthserviceLogin = {
       staticClass: "card-header-title"
     }, [_vm._v("Forgotten Password")])]);
   }],
-  _scopeId: 'data-v-47658ab7',
+  _scopeId: 'data-v-0efa84e8',
   name: 'authservice-login',
   components: {
     Icon: Icon

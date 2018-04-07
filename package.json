@@ -1,8 +1,8 @@
 {
   "name": "vue-authservice",
   "version": "0.0.12",
-  "zmain": "src/main.js",
-  "main": "dist/vue-authservice.cjs.js",
+  "main": "src/main.js",
+  "zmain": "dist/vue-authservice.cjs.js",
   "zmodule": "dist/vue-authservice.cjs.js",
   "license": "MIT",
   "description": "Test junk",

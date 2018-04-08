@@ -512,8 +512,8 @@
       // See if the user wants to start in a particular mode
       if (this.$authservice && this.$authservice.user) {
         this.mode = 'loggedIn'
-      } else if (initialMode === 'login' || initialMode === 'forgot' || initialMode === 'register') {
-        this.mode = initialMode
+      } else if (this.initialMode === 'login' || this.initialMode === 'forgot' || this.initialMode === 'register') {
+        this.mode = this.initialMode
       }
 
       // console.log('============= NEW COMPONENT ================')

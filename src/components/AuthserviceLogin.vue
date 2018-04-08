@@ -338,6 +338,9 @@
       // Forgotten password related
       forgotResume: String, // URL - where to go after email verification
 
+      // Initial mode (e.g. 'register' or 'signup')
+      initialMode: String,
+
       nocomma: String
     },
     data () {
@@ -505,6 +508,14 @@
     // Once the componented has been created, see if we are already
     // logged in (as shown by having a valid JWT in a cookie)
     created: function () {
+
+      // See if the user wants to start in a particular mode
+      if (this.$authservice && this.$authservice.user) {
+        this.mode = 'loggedIn'
+      } else if (initialMode === 'login' || initialMode === 'forgot' || initialMode === 'register') {
+        this.mode = initialMode
+      }
+
       // console.log('============= NEW COMPONENT ================')
       // console.log('\n\n\n1 ====>', this.$authservice)
       // console.log('\n\n\n2 ====>', this.$authservice.user)

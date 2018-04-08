@@ -83,7 +83,7 @@ class Authservice {
       } else {
         // All good for registration
         this.registrationSupported = true
-        this.registerResume = options.hints.register.resumeURL
+        //this.registerResume = options.hints.register.resumeURL
         console.log(`Authservice(): Registration IS supported`);
       }
     }
@@ -412,7 +412,7 @@ class Authservice {
       }
 
       // Check we have a URL to go to after email verification.
-      const registerOpts = this.register ? this.register : { }
+      const registerOpts = this.hints.register ? this.hints.register : { }
       switch (typeof (registerOpts.resumeURL)) {
         case 'string':
           break

@@ -194,7 +194,9 @@
 
     // Message for after the register email has been sent
     .card(v-if="mode === 'registerAfter'")
-      .b-dropdown-header
+      header.card-header
+        p.card-header-title Congratulations
+      .card-content
         // h4 Registration
         p
           | Congratulations, you now have a user account.
@@ -202,11 +204,12 @@
         p
           | Please take a moment to check your email and complete
           | the registration process.
-      .b-dropdown-divider
-      .b-dropdown-header
         // Should just close the dropdown VVVVV
         // a.button(:size="'sm'" :variant="'primary'" v-on:click="setMode('login')") Ok
-        a.button(type="submit" :size="'sm'" :variant="'primary'" v-on:click="setMode('login')").btn.btn-default ok
+        br
+        button.button.is-pulled-right.is-primary(type="submit", v-on:click="setMode('login')") OK
+        br
+        br
     //- .b-form
 
     //

@@ -412,7 +412,7 @@ class Authservice {
       }
 
       // Check we have a URL to go to after email verification.
-      const registerOpts = this.hints.register ? this.hints.register : { }
+      const registerOpts = (this.options.hints && this.options.hints.register) ? this.options.hints.register : { }
       switch (typeof (registerOpts.resumeURL)) {
         case 'string':
           break

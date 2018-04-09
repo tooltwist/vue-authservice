@@ -656,7 +656,7 @@
           options.username = this.registerUsername
         }
         if (this.registerRequiresPassword) {
-          options.pasword = this.registerPassword
+          options.password = this.registerPassword
         }
         if (this.registerRequiresFirstName) {
           options.firstName = this.registerFirstName

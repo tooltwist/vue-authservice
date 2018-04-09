@@ -127,8 +127,8 @@ function () {
         console.error('options.hints.register.resumeURL must be a string');
       } else {
         // All good for registration
-        this.registrationSupported = true;
-        this.registerResume = options.hints.register.resumeURL;
+        this.registrationSupported = true; //this.registerResume = options.hints.register.resumeURL
+
         console.log("Authservice(): Registration IS supported");
       }
     } // See if forgotten password is allowed
@@ -495,7 +495,7 @@ function () {
         } // Check we have a URL to go to after email verification.
 
 
-        var registerOpts = _this3.register ? _this3.register : {};
+        var registerOpts = _this3.options.hints && _this3.options.hints.register ? _this3.options.hints.register : {};
 
         switch (_typeof(registerOpts.resumeURL)) {
           case 'string':
@@ -843,15 +843,21 @@ function () {
           rights: [] // type: ident.type,
 
         };
-        ident.rights.forEach(function (r) {
-          var right = {
-            realm: r.realm,
-            name: r.name,
-            sequence: r.sequence,
-            value: r.value
-          };
-          user.rights.push(right);
-        }); // console.log('Setting user to ', user)
+
+        if (ident.rights) {
+          ident.rights.forEach(function (r) {
+            var right = {
+              realm: r.realm,
+              name: r.name,
+              sequence: r.sequence,
+              value: r.value
+            };
+            user.rights.push(right);
+          });
+        } else {
+          console.error("JWT does not contain field {rights}.");
+        } // console.log('Setting user to ', user)
+
 
         this.user = user;
         this.jwt = jwt;
@@ -1537,22 +1543,18 @@ var AuthserviceLogin = {
     }, [_vm._v("link")]), _vm._v(")")]) : _vm._e()])]) : _vm._e()]) : _vm._e(), _vm.mode === 'registerAfter' ? _c('div', {
       staticClass: "card"
     }, [_vm._m(8), _c('div', {
-      staticClass: "b-dropdown-divider"
-    }), _c('div', {
-      staticClass: "b-dropdown-header"
-    }, [_c('a', {
-      staticClass: "button btn btn-default",
+      staticClass: "card-content"
+    }, [_c('p', [_vm._v("Congratulations, you now have a user account. We have sent you an email to verify your email address.")]), _c('p', [_vm._v("Please take a moment to check your email and complete the registration process.")]), _c('br'), _c('button', {
+      staticClass: "button is-pulled-right is-primary",
       attrs: {
-        "type": "submit",
-        "size": 'sm',
-        "variant": 'primary'
+        "type": "submit"
       },
       on: {
         "click": function click($event) {
           _vm.setMode('login');
         }
       }
-    }, [_vm._v("ok")])])]) : _vm._e(), _vm.mode === 'forgot' ? _c('div', [_c('br'), _c('br'), _c('div', {
+    }, [_vm._v("OK")]), _c('br'), _c('br')])]) : _vm._e(), _vm.mode === 'forgot' ? _c('div', [_c('br'), _c('br'), _c('div', {
       staticClass: "card"
     }, [_vm._m(9), _c('div', {
       staticClass: "card-content"
@@ -1732,9 +1734,11 @@ var AuthserviceLogin = {
 
     var _c = _vm._self._c || _h;
 
-    return _c('div', {
-      staticClass: "b-dropdown-header"
-    }, [_c('p', [_vm._v("Congratulations, you now have a user account. We have sent you an email to verify your email address.")]), _c('p', [_vm._v("Please take a moment to check your email and complete the registration process.")])]);
+    return _c('header', {
+      staticClass: "card-header"
+    }, [_c('p', {
+      staticClass: "card-header-title"
+    }, [_vm._v("Congratulations")])]);
   }, function () {
     var _vm = this;
 
@@ -1821,6 +1825,8 @@ var AuthserviceLogin = {
     // Forgotten password related
     forgotResume: String,
     // URL - where to go after email verification
+    // Initial mode (e.g. 'register' or 'signup')
+    initialMode: String,
     nocomma: String
   },
   data: function data() {
@@ -1974,7 +1980,13 @@ var AuthserviceLogin = {
   },
   // Once the componented has been created, see if we are already
   // logged in (as shown by having a valid JWT in a cookie)
-  created: function created() {// console.log('============= NEW COMPONENT ================')
+  created: function created() {
+    // See if the user wants to start in a particular mode
+    if (this.$authservice && this.$authservice.user) {
+      this.mode = 'loggedIn';
+    } else if (this.initialMode === 'login' || this.initialMode === 'forgot' || this.initialMode === 'register') {
+      this.mode = this.initialMode;
+    } // console.log('============= NEW COMPONENT ================')
     // console.log('\n\n\n1 ====>', this.$authservice)
     // console.log('\n\n\n2 ====>', this.$authservice.user)
     // registerRequiresUsername: registerWithField(this, 'username'),
@@ -1982,6 +1994,7 @@ var AuthserviceLogin = {
     // registerRequiresFirstName: registerWithField(this, 'first_name'),
     // registerRequiresMiddleName: registerWithField(this, 'middle_name'),
     // registerRequiresLastName: registerWithField(this, 'last_name'),
+
   },
   methods: {
     // Prevent the default key bindings from closing the
@@ -2114,7 +2127,7 @@ var AuthserviceLogin = {
       }
 
       if (this.registerRequiresPassword) {
-        options.pasword = this.registerPassword;
+        options.password = this.registerPassword;
       }
 
       if (this.registerRequiresFirstName) {

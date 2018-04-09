@@ -67,7 +67,6 @@
 
             br
             .notification.is-danger(v-if="loginError")
-              // button.delete
               | {{loginError}}
               br
 
@@ -173,7 +172,9 @@
             input.input(v-model.trim="registerLastName" v-on:keydown.native="keyhandler")
 
         br
-        //- b-alert(variant="danger" show) Login Error
+        .notification.is-danger(v-if="registerError")
+          | {{registerError}}
+          br
 
         a.button.is-primary.is-pulled-right(v-on:click="register")
           | SIGN UP

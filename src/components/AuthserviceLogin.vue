@@ -71,7 +71,7 @@
               br
 
 
-            a.button.is-primary.is-pulled-right(v-on:click="doLogin" tabindex="33")
+            a.button.is-primary.is-pulled-right(v-on:click="doLogin" tabindex="33" v-class="{ 'is-loading': loginInProgress }")
               | Login
             a(v-if="provideForgottenPassword" href="#" v-on:click="setMode('forgot')")
               | Forgot Login Info?
@@ -85,7 +85,8 @@
       .card-footer(v-if="loginWithEmail && provideRegistration")
         .card-footer-item
           | {{loginSignupMessage}} &nbsp;&nbsp;
-          a(href="#" v-on:click="setMode('register')") Sign up
+          a(href="#" v-on:click="setMode('register')")
+            | Sign up
 
 
 
@@ -176,7 +177,7 @@
           | {{registerError}}
           br
 
-        a.button.is-primary.is-pulled-right(v-on:click="register")
+        a.button.is-primary.is-pulled-right(v-on:click="register" v-class="{ 'is-loading': registerInProgress }")
           | SIGN UP
         span.is-pulled-left
           | Already have an account? &nbsp;
@@ -242,13 +243,11 @@
           br
 
           // https://bootstrap-vue.js.org/docs/components/button
-          a.button.is-primary.is-pulled-right(v-on:click="forgot")
-            //- span(v-if="forgotInProgress")
-            //-   icon(name="refresh" spin)
-            //-   | &nbsp;&nbsp;
+          a.button.is-primary.is-pulled-right(v-on:click="forgot" v-class="{ 'is-loading': forgotInProgress }")
             | Send the Email
           .is-pulled-right &nbsp;&nbsp;
-          a.button.is-pulled-right(v-on:click="setMode('login')") Cancel
+          a.button.is-pulled-right(v-on:click="setMode('login')")
+            | Cancel
           br
       br
       br
@@ -358,6 +357,7 @@
 
         // loginWithUsername: true,
         loginError: '',
+        loginInProgress: '',
 
         // Forgotten password
         forgotEmail: '',
@@ -371,6 +371,8 @@
         registerMiddleName: '',
         registerLastName: '',
         registerPassword: '',
+        registerError: '',
+        registerInProgress: false,
 
         // registerRequiresUsername: registerWithField(this, 'username'),
         // registerRequiresPassword: registerWithField(this, 'password'),
@@ -574,15 +576,18 @@
         const password = this.password
         this.password = ''
         this.loginError = ''
+        this.loginInProgress = true
 
         this.$authservice.login(this.email, password)
           .then((userDetails) => {
             this.loginError = ''
+            this.loginInProgress = false
             this.mode = 'loggedIn'
             this.$emit('userchange', this.$authservice.user.id)
           })
           .catch((errmsg) => {
             this.loginError = errmsg
+            this.loginInProgress = false
             this.mode = 'login'
             this.$emit('userchange', 0)
           })

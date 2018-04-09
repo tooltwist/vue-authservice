@@ -75,8 +75,7 @@ class Authservice {
         this.registrationSupported = false;
         console.log(`Authservice(): Registration is NOT supported`);
         console.error('options.hints.register.resumeURL must be provided')
-      }
-      else if (typeof(options.hints.register.resumeURL) !== 'string') {
+      } else if (typeof(options.hints.register.resumeURL) !== 'string') {
         this.registrationSupported = false;
         console.log(`Authservice(): Registration is NOT supported`);
         console.error('options.hints.register.resumeURL must be a string')
@@ -728,15 +727,19 @@ class Authservice {
         rights: [ ]
         // type: ident.type,
       }
-      ident.rights.forEach(r => {
-        const right = {
-          realm: r.realm,
-          name: r.name,
-          sequence: r.sequence,
-          value: r.value
-        }
-        user.rights.push(right)
-      })
+      if (ident.rights) {
+        ident.rights.forEach(r => {
+          const right = {
+            realm: r.realm,
+            name: r.name,
+            sequence: r.sequence,
+            value: r.value
+          }
+          user.rights.push(right)
+        })
+      } else {
+        console.error(`JWT does not contain field {rights}.`)
+      }
 
       // console.log('Setting user to ', user)
       this.user = user

@@ -71,7 +71,7 @@
               br
 
 
-            a.button.is-primary.is-pulled-right(v-on:click="doLogin" tabindex="33" v-class="{ 'is-loading': loginInProgress }")
+            a.button.is-primary.is-pulled-right(@click="doLogin", tabindex="33", :class="{ 'is-loading': loginInProgress }")
               | Login
             a(v-if="provideForgottenPassword" href="#" v-on:click="setMode('forgot')")
               | Forgot Login Info?
@@ -177,7 +177,7 @@
           | {{registerError}}
           br
 
-        a.button.is-primary.is-pulled-right(v-on:click="register" v-class="{ 'is-loading': registerInProgress }")
+        a.button.is-primary.is-pulled-right(@click="register", :class="{ 'is-loading': registerInProgress }")
           | SIGN UP
         span.is-pulled-left
           | Already have an account? &nbsp;
@@ -243,7 +243,7 @@
           br
 
           // https://bootstrap-vue.js.org/docs/components/button
-          a.button.is-primary.is-pulled-right(v-on:click="forgot" v-class="{ 'is-loading': forgotInProgress }")
+          a.button.is-primary.is-pulled-right(@click="forgot", :class="{ 'is-loading': forgotInProgress }")
             | Send the Email
           .is-pulled-right &nbsp;&nbsp;
           a.button.is-pulled-right(v-on:click="setMode('login')")

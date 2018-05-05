@@ -29,12 +29,12 @@
                 | &nbsp; Login with Github
               br
             div(v-if="allowLinkedinLogin")
-              a.button.social-button.is-primary(:variant="'secondary'" v-on:click="githubLogin()" tabindex="38")
+              a.button.social-button.is-primary(:variant="'secondary'" v-on:click="linkedinLogin()" tabindex="38")
                 i.fa.fa-linkedin.has-text-white
                 | &nbsp; Login with LinkedIn
               br
             div(v-if="allowTwitterLogin")
-              a.button.social-button.is-primary(:variant="'secondary'" v-on:click="githubLogin()" tabindex="38")
+              a.button.social-button.is-primary(:variant="'secondary'" v-on:click="twitterLogin()" tabindex="38")
                 i.fa.fa-twitter.has-text-white
                 | &nbsp; Login with Twitter
               br
@@ -102,10 +102,14 @@
     .card(v-if="mode === 'loggedIn'")
       .card-content
         | You are logged in as&nbsp;
-        strong {{$authservice.user.firstname}}  {{$authservice.user.lastname}}
+        strong {{$authservice.user.fullname}}
+        | &nbsp;({{$authservice.user.authority}})
         //- b-dropdown-item(aria-describedby="header1") Another action
+        br
+        br
 
         img(v-if="$authservice.user.avatar" :src="$authservice.user.avatar", alt="")
+        br
         br
         router-link(to='/app-settings/applications') Settings
         br
@@ -607,13 +611,21 @@
         // alert('facebook login, ' + this.username + ', ' + this.password)
         this.$authservice.initiateOAuth(this, 'facebook')
       },
+      githubLogin: function () {
+        //alert('github login, ' + this.username + ', ' + this.password)
+        this.$authservice.initiateOAuth(this, 'github')
+      },
       googleLogin: function () {
-        alert('google login, ' + this.username + ', ' + this.password)
+        //alert('google login, ' + this.username + ', ' + this.password)
         this.$authservice.initiateOAuth(this, 'google')
       },
-      githubLogin: function () {
-        alert('github login, ' + this.username + ', ' + this.password)
-        this.$authservice.initiateOAuth(this, 'github')
+      linkedinLogin: function () {
+        //alert('linkedin login, ' + this.username + ', ' + this.password)
+        this.$authservice.initiateOAuth(this, 'linkedin')
+      },
+      twitterLogin: function () {
+        //alert('twitter login, ' + this.username + ', ' + this.password)
+        this.$authservice.initiateOAuth(this, 'twitter')
       },
 
       // See if a username is used

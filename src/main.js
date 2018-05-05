@@ -3,6 +3,7 @@
 
 import Authservice from './Authservice'
 import AuthserviceLogin from './components/AuthserviceLogin.vue'
+import AuthserviceBounceComponent from './components/AuthserviceBounceComponent.vue'
 
 export let _Vue
 
@@ -96,6 +97,7 @@ function install (Vue, options) {
   // Define the components
   // Vue.component('authservice-navbar', AuthserviceNavbar)
   Vue.component('authservice-login', AuthserviceLogin)
+  Vue.component('authservice-bounce-component', AuthserviceBounceComponent)
   // Vue.component('authservice-navbar-blu', AuthserviceNavbarBlu)
   // Vue.component('authservice-bulma', AuthserviceBulma)
   // Vue.component('my-component', MyComponent)

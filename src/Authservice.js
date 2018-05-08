@@ -708,6 +708,7 @@ class Authservice {
         authority: ident.authority,
         avatar: ident.avatar,
         email: ident.email,
+        emailStatus: ident.email_status,
         entityType: ident.entity_type,
         firstname: ident.first_name,
         fullname: ident.full_name,

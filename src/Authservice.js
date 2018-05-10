@@ -98,18 +98,21 @@ class Authservice {
       // We WILL allow forgot password. Check we have what we need.
       if (typeof(options.hints.forgot) !== 'object') {
         this.forgottenPasswordSupported = false;
+        console.log(`Authservice(): Forgotten password is NOT supported`);
         console.error('options.hints.forgot must be false, or an object')
       } else if (!options.hints.forgot || !options.hints.forgot.resumeURL) {
         this.forgottenPasswordSupported = false;
+        console.log(`Authservice(): Forgotten password is NOT supported`);
         console.error('options.hints.forgot.resumeURL must be provided')
       }
       else if (typeof(options.hints.forgot.resumeURL) !== 'string') {
         this.forgottenPasswordSupported = false;
+        console.log(`Authservice(): Forgotten password is NOT supported`);
         console.error('options.hints.forgot.resumeURL must be a string')
       } else {
         // All good for forgotten password
         this.forgottenPasswordSupported = true;
-        this.forgetResume = options.hints.forgot.resumeURL
+        this.forgotResume = options.hints.forgot.resumeURL
       }
     }
 
@@ -416,9 +419,9 @@ class Authservice {
         case 'string':
           break
         case 'undefined':
-          return reject('options.register.resumeURL must be provided')
+          return reject('options.hints.register.resumeURL must be provided')
         default:
-          return reject('options.register.resumeURL must be a string')
+          return reject('options.hints.register.resumeURL must be a string')
       }
 
       var params = {

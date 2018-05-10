@@ -46,9 +46,9 @@
 
           div(v-if="loginWithEmail")
             .field(v-if="loginWithUsername")
-              label.label User Name or Email Address
+              label.label User Name
               .control.has-icons-left
-                input.input(v-model.trim="email" type="text" v-on:keydown.native="keyhandler" placeholder="Enter your User Name or Email Address")
+                input.input(v-model.trim="email" type="text" v-on:keydown.native="keyhandler" placeholder="Enter your User Name")
                 span.icon.is-small.is-left
                   i.fa.fa-user
             .field(v-else)

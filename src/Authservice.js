@@ -90,6 +90,8 @@ class Authservice {
     // See if forgotten password is allowed
     if (!this.emailSupported) {
       // Email is not used (options.login.email is false)
+      console.log(`Authservice(): Forgotten password is NOT supported`);
+      console.log(`(because email is not supported)`)
       this.forgottenPasswordSupported = false;
     } else if (options.hints && typeof(options.hints.forgot) !== 'undefined' && !options.hints.forgot) {
       // Forgot password is specifically disallowed (options.hints.register is false)
@@ -325,7 +327,7 @@ class Authservice {
       resumeURL = baseURL + relativeResumeURL
     } else {
       // Use the current page, but with any JWT or error parameter removed.
-      console.log('resume to current page', l)
+      console.log('resume to current page after oauth login', l)
       const parsed = QueryString.parse(l.search)
       console.log(parsed)
 
@@ -580,6 +582,11 @@ class Authservice {
 
   forgot (email, options) {
     return new Promise((resolve, reject) => {
+      if (!this.forgottenPasswordSupported) {
+        const error = 'Password retrieval is not available.'
+        reject(error)
+        return
+      }
       // Check email and password is valid
       if (email === null || email.indexOf('@') < 1) {
         const error = 'Please enter a valid email address'
@@ -595,38 +602,21 @@ class Authservice {
       if (l.port) {
         baseURL += `:${l.port}`
       }
-      console.log('\n\nbaseURL=', baseURL)
+      console.log(`this.forgotResume=${this.forgotResume}`)
 
-      // Where to go when they click on the emai link?
-      var resumeURL
-      if (options && options.forgotResume) {
-        // Use the specified resume URL (which is a relative path)
-        resumeURL = baseURL + options.forgotResume
-      } else {
-        // Use the current page, but with any JWT or error parameter removed.
-        console.log('resume to current page', l)
-        const parsed = QueryString.parse(l.search)
-        console.log(parsed)
-
-        delete parsed['AUTHSERVICE_JWT']
-        delete parsed['AUTHSERVICE_ERROR']
-        const params = QueryString.stringify(parsed)
-        resumeURL = l.protocol + "//" + l.host + l.pathname
-        if (params) {
-          resumeURL += '?' + params
-        }
-        resumeURL += l.hash
-        console.log('\n\nresumeURL=', resumeURL)
-        console.log(new Buffer(resumeURL).toString('base64'))
+      // Where to go when they click on the email link?
+      let resumeURL = this.forgotResume
+      if (resumeURL.startsWith('/')) {
+        resumeURL = baseURL + resumeURL
       }
+      console.log(`resumeURL is ${resumeURL}`)
 
       // Get the URL to a "bounce page". This is a page that sets the JWT
       // cookie from a URL parameter, and then redirects to the 'resume' page.
       const resume64 = new Buffer(resumeURL).toString('base64')
       const params = QueryString.stringify({ next: resume64 })
-      const hash = `/authservice-bounce`
-      const bounceURL = `${l.protocol}//${l.host}?${params}#${hash}`
-      console.log('\n\nbounceURL=', bounceURL)
+      const bounceURL = `${l.protocol}//${l.host}/authservice-bounce?${params}`
+      console.log('bounceURL=', bounceURL)
 
       // Call the server
       console.log('params=', params)

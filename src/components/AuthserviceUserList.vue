@@ -124,8 +124,6 @@
             path = path.replace(tenantMarker, user.tenant)
             path = path.replace(userIdMarker, user.id)
 
-            alert(`Jumping to ${path}`)
-
             // Jump to the user details page
             // See http://router.vuejs.org/en/essentials/navigation.html
             // this.$router.push({ path: `/user-details/${user.tenant}/${user.id}` })

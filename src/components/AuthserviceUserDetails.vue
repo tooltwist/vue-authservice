@@ -11,7 +11,7 @@
       .column.is-3.has-text-centered
 
         // Authority
-        .a3-logo
+        .authservice-logo
           i.fa.fa-envelope-o(v-if="user.authority === 'email'")
           i.fa.fa-facebook-official(v-else-if="user.authority === 'facebook'")
           i.fa.fa-github(v-else-if="user.authority === 'github'")
@@ -510,6 +510,14 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .authservice-profile {
-  //@import '../assets/scss/social-settings.scss';
+  .authservice-logo {
+    margin-top: 5px;
+    margin-bottom: 25px;
+    font-size: 112px;
+    line-height: 112px;
+    &.a3-faded i.fa {
+      color: #d0d0d0;
+    }
+  }
 }
 </style>

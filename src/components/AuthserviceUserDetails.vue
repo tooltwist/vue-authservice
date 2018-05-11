@@ -205,6 +205,7 @@
 <script>
 import axios from 'axios'
 import axiosError from '~/lib/axiosError.js'
+import AuthserviceChangePassword from './AuthserviceChangePassword'
 
 export default {
   name: 'authservice-profile',

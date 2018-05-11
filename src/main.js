@@ -4,6 +4,9 @@
 import Authservice from './Authservice'
 import AuthserviceLogin from './components/AuthserviceLogin.vue'
 import AuthserviceBounceComponent from './components/AuthserviceBounceComponent.vue'
+import AuthserviceUserList from './components/AuthserviceUserList.vue'
+import AuthserviceUserDetails from './components/AuthserviceUserDetails.vue'
+import AuthserviceChangePassword from './components/AuthserviceChangePassword.vue'
 
 export let _Vue
 
@@ -25,10 +28,6 @@ function install (Vue, options) {
   _authservice.checkInitialLoginStatus(false)
   console.log('Finished checking status')
 
-
-
-  // if (install.installed) return
-  // install.installed = true
 
   _Vue = Vue
 
@@ -95,9 +94,13 @@ function install (Vue, options) {
   })
 
   // Define the components
-  // Vue.component('authservice-navbar', AuthserviceNavbar)
   Vue.component('authservice-login', AuthserviceLogin)
   Vue.component('authservice-bounce-component', AuthserviceBounceComponent)
+  Vue.component('authservice-change-password', AuthserviceChangePassword)
+  Vue.component('authservice-user-list', AuthserviceUserList)
+  Vue.component('authservice-user-details', AuthserviceUserDetails)
+
+  // Vue.component('authservice-navbar', AuthserviceNavbar)
   // Vue.component('authservice-navbar-blu', AuthserviceNavbarBlu)
   // Vue.component('authservice-bulma', AuthserviceBulma)
   // Vue.component('my-component', MyComponent)

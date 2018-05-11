@@ -10,6 +10,8 @@ var QueryString = _interopDefault(require('query-string'));
 var debounce = _interopDefault(require('debounce'));
 require('vue-awesome/icons/refresh');
 var Icon = _interopDefault(require('vue-awesome/components/Icon.vue'));
+var URL = _interopDefault(require('url'));
+var axiosError = _interopDefault(require('~/lib/axiosError.js'));
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -136,6 +138,8 @@ function () {
 
     if (!this.emailSupported) {
       // Email is not used (options.login.email is false)
+      console.log("Authservice(): Forgotten password is NOT supported");
+      console.log("(because email is not supported)");
       this.forgottenPasswordSupported = false;
     } else if (options.hints && typeof options.hints.forgot !== 'undefined' && !options.hints.forgot) {
       // Forgot password is specifically disallowed (options.hints.register is false)
@@ -144,17 +148,20 @@ function () {
       // We WILL allow forgot password. Check we have what we need.
       if (_typeof(options.hints.forgot) !== 'object') {
         this.forgottenPasswordSupported = false;
+        console.log("Authservice(): Forgotten password is NOT supported");
         console.error('options.hints.forgot must be false, or an object');
       } else if (!options.hints.forgot || !options.hints.forgot.resumeURL) {
         this.forgottenPasswordSupported = false;
+        console.log("Authservice(): Forgotten password is NOT supported");
         console.error('options.hints.forgot.resumeURL must be provided');
       } else if (typeof options.hints.forgot.resumeURL !== 'string') {
         this.forgottenPasswordSupported = false;
+        console.log("Authservice(): Forgotten password is NOT supported");
         console.error('options.hints.forgot.resumeURL must be a string');
       } else {
         // All good for forgotten password
         this.forgottenPasswordSupported = true;
-        this.forgetResume = options.hints.forgot.resumeURL;
+        this.forgotResume = options.hints.forgot.resumeURL;
       }
     } // Remember the options
 
@@ -389,7 +396,7 @@ function () {
         resumeURL = baseURL + relativeResumeURL;
       } else {
         // Use the current page, but with any JWT or error parameter removed.
-        console.log('resume to current page', l);
+        console.log('resume to current page after oauth login', l);
         var parsed = QueryString.parse(l.search);
         console.log(parsed);
         delete parsed['AUTHSERVICE_JWT'];
@@ -502,10 +509,10 @@ function () {
             break;
 
           case 'undefined':
-            return reject('options.register.resumeURL must be provided');
+            return reject('options.hints.register.resumeURL must be provided');
 
           default:
-            return reject('options.register.resumeURL must be a string');
+            return reject('options.hints.register.resumeURL must be a string');
         }
 
         var params = {
@@ -684,10 +691,16 @@ function () {
       var _this4 = this;
 
       return new Promise(function (resolve, reject) {
-        // Check email and password is valid
-        if (email === null || email.indexOf('@') < 1) {
-          var error = 'Please enter a valid email address';
+        if (!_this4.forgottenPasswordSupported) {
+          var error = 'Password retrieval is not available.';
           reject(error);
+          return;
+        } // Check email and password is valid
+
+
+        if (email === null || email.indexOf('@') < 1) {
+          var _error = 'Please enter a valid email address';
+          reject(_error);
           return;
         } // Decide where we want to end up.
         // If a 'resume' URL has not been provided, we'll come back to this exact
@@ -701,43 +714,23 @@ function () {
           baseURL += ":".concat(l.port);
         }
 
-        console.log('\n\nbaseURL=', baseURL); // Where to go when they click on the emai link?
+        console.log("this.forgotResume=".concat(_this4.forgotResume)); // Where to go when they click on the email link?
 
-        var resumeURL;
+        var resumeURL = _this4.forgotResume;
 
-        if (options && options.forgotResume) {
-          // Use the specified resume URL (which is a relative path)
-          resumeURL = baseURL + options.forgotResume;
-        } else {
-          // Use the current page, but with any JWT or error parameter removed.
-          console.log('resume to current page', l);
-          var parsed = QueryString.parse(l.search);
-          console.log(parsed);
-          delete parsed['AUTHSERVICE_JWT'];
-          delete parsed['AUTHSERVICE_ERROR'];
+        if (resumeURL.startsWith('/')) {
+          resumeURL = baseURL + resumeURL;
+        }
 
-          var _params2 = QueryString.stringify(parsed);
-
-          resumeURL = l.protocol + "//" + l.host + l.pathname;
-
-          if (_params2) {
-            resumeURL += '?' + _params2;
-          }
-
-          resumeURL += l.hash;
-          console.log('\n\nresumeURL=', resumeURL);
-          console.log(new Buffer(resumeURL).toString('base64'));
-        } // Get the URL to a "bounce page". This is a page that sets the JWT
+        console.log("resumeURL is ".concat(resumeURL)); // Get the URL to a "bounce page". This is a page that sets the JWT
         // cookie from a URL parameter, and then redirects to the 'resume' page.
-
 
         var resume64 = new Buffer(resumeURL).toString('base64');
         var params = QueryString.stringify({
           next: resume64
         });
-        var hash = "/authservice-bounce";
-        var bounceURL = "".concat(l.protocol, "//").concat(l.host, "?").concat(params, "#").concat(hash);
-        console.log('\n\nbounceURL=', bounceURL); // Call the server
+        var bounceURL = "".concat(l.protocol, "//").concat(l.host, "/authservice-bounce?").concat(params);
+        console.log('bounceURL=', bounceURL); // Call the server
 
         console.log('params=', params);
         axios({
@@ -760,9 +753,9 @@ function () {
             return;
           } else {
             // Error sending the email
-            var _error = response.data && response.data.message ? response.data.message : 'Error while sending email';
+            var _error2 = response.data && response.data.message ? response.data.message : 'Error while sending email';
 
-            reject(_error);
+            reject(_error2);
             return;
           }
         }).catch(function (e) {
@@ -773,9 +766,9 @@ function () {
             return;
           } else {
             // Error sending the email
-            var _error2 = e.response.data && e.response.data.message ? e.response.data.message : 'Error while sending email';
+            var _error3 = e.response.data && e.response.data.message ? e.response.data.message : 'Error while sending email';
 
-            reject(_error2);
+            reject(_error3);
             return;
           }
         });
@@ -824,6 +817,7 @@ function () {
           authority: ident.authority,
           avatar: ident.avatar,
           email: ident.email,
+          emailStatus: ident.email_status,
           entityType: ident.entity_type,
           firstname: ident.first_name,
           fullname: ident.full_name,
@@ -1075,7 +1069,7 @@ var AuthserviceLogin = {
       },
       on: {
         "click": function click($event) {
-          _vm.githubLogin();
+          _vm.linkedinLogin();
         }
       }
     }, [_c('i', {
@@ -1088,7 +1082,7 @@ var AuthserviceLogin = {
       },
       on: {
         "click": function click($event) {
-          _vm.githubLogin();
+          _vm.twitterLogin();
         }
       }
     }, [_c('i', {
@@ -1099,7 +1093,7 @@ var AuthserviceLogin = {
       staticClass: "field"
     }, [_c('label', {
       staticClass: "label"
-    }, [_vm._v("User Name or Email Address")]), _c('div', {
+    }, [_vm._v("User Name")]), _c('div', {
       staticClass: "control has-icons-left"
     }, [_c('input', {
       directives: [{
@@ -1114,7 +1108,7 @@ var AuthserviceLogin = {
       staticClass: "input",
       attrs: {
         "type": "text",
-        "placeholder": "Enter your User Name or Email Address"
+        "placeholder": "Enter your User Name"
       },
       domProps: {
         "value": _vm.email
@@ -1223,6 +1217,9 @@ var AuthserviceLogin = {
       staticClass: "notification is-danger"
     }, [_vm._v(_vm._s(_vm.loginError)), _c('br')]) : _vm._e(), _c('a', {
       staticClass: "button is-primary is-pulled-right",
+      class: {
+        'is-loading': _vm.loginInProgress
+      },
       attrs: {
         "tabindex": "33"
       },
@@ -1255,12 +1252,12 @@ var AuthserviceLogin = {
       staticClass: "card"
     }, [_c('div', {
       staticClass: "card-content"
-    }, [_vm._v("You are logged in as "), _c('strong', [_vm._v(_vm._s(_vm.$authservice.user.firstname) + " " + _vm._s(_vm.$authservice.user.lastname))]), _vm.$authservice.user.avatar ? _c('img', {
+    }, [_vm._v("You are logged in as "), _c('strong', [_vm._v(_vm._s(_vm.$authservice.user.fullname))]), _vm._v(" (" + _vm._s(_vm.$authservice.user.authority) + ")"), _c('br'), _c('br'), _vm.$authservice.user.avatar ? _c('img', {
       attrs: {
         "src": _vm.$authservice.user.avatar,
         "alt": ""
       }
-    }) : _vm._e(), _c('br'), _c('router-link', {
+    }) : _vm._e(), _c('br'), _c('br'), _c('router-link', {
       attrs: {
         "to": "/app-settings/applications"
       }
@@ -1513,8 +1510,13 @@ var AuthserviceLogin = {
           return _vm.keyhandler($event);
         }
       }
-    })])]) : _vm._e(), _c('br'), _c('a', {
+    })])]) : _vm._e(), _c('br'), _vm.registerError ? _c('div', {
+      staticClass: "notification is-danger"
+    }, [_vm._v(_vm._s(_vm.registerError)), _c('br')]) : _vm._e(), _c('a', {
       staticClass: "button is-primary is-pulled-right",
+      class: {
+        'is-loading': _vm.registerInProgress
+      },
       on: {
         "click": _vm.register
       }
@@ -1606,6 +1608,9 @@ var AuthserviceLogin = {
       }
     }, [_vm._v(_vm._s(_vm.forgotError))]) : _vm._e(), _c('br'), _c('a', {
       staticClass: "button is-primary is-pulled-right",
+      class: {
+        'is-loading': _vm.forgotInProgress
+      },
       on: {
         "click": _vm.forgot
       }
@@ -1839,6 +1844,7 @@ var AuthserviceLogin = {
       mode: this.$authservice && this.$authservice.user ? 'loggedIn' : 'login',
       // loginWithUsername: true,
       loginError: '',
+      loginInProgress: '',
       // Forgotten password
       forgotEmail: '',
       forgotError: '',
@@ -1850,6 +1856,8 @@ var AuthserviceLogin = {
       registerMiddleName: '',
       registerLastName: '',
       registerPassword: '',
+      registerError: '',
+      registerInProgress: false,
       // registerRequiresUsername: registerWithField(this, 'username'),
       // registerRequiresPassword: registerWithField(this, 'password'),
       // registerRequiresFirstName: registerWithField(this, 'first_name'),
@@ -2042,13 +2050,16 @@ var AuthserviceLogin = {
       var password = this.password;
       this.password = '';
       this.loginError = '';
+      this.loginInProgress = true;
       this.$authservice.login(this.email, password).then(function (userDetails) {
         _this.loginError = '';
+        _this.loginInProgress = false;
         _this.mode = 'loggedIn';
 
         _this.$emit('userchange', _this.$authservice.user.id);
       }).catch(function (errmsg) {
         _this.loginError = errmsg;
+        _this.loginInProgress = false;
         _this.mode = 'login';
 
         _this.$emit('userchange', 0);
@@ -2068,13 +2079,21 @@ var AuthserviceLogin = {
       // alert('facebook login, ' + this.username + ', ' + this.password)
       this.$authservice.initiateOAuth(this, 'facebook');
     },
+    githubLogin: function githubLogin() {
+      //alert('github login, ' + this.username + ', ' + this.password)
+      this.$authservice.initiateOAuth(this, 'github');
+    },
     googleLogin: function googleLogin() {
-      alert('google login, ' + this.username + ', ' + this.password);
+      //alert('google login, ' + this.username + ', ' + this.password)
       this.$authservice.initiateOAuth(this, 'google');
     },
-    githubLogin: function githubLogin() {
-      alert('github login, ' + this.username + ', ' + this.password);
-      this.$authservice.initiateOAuth(this, 'github');
+    linkedinLogin: function linkedinLogin() {
+      //alert('linkedin login, ' + this.username + ', ' + this.password)
+      this.$authservice.initiateOAuth(this, 'linkedin');
+    },
+    twitterLogin: function twitterLogin() {
+      //alert('twitter login, ' + this.username + ', ' + this.password)
+      this.$authservice.initiateOAuth(this, 'twitter');
     },
     // See if a username is used
     validateUsername: function validateUsername() {
@@ -2293,6 +2312,1691 @@ var AuthserviceLogin = {
 //   return endpoint
 // }
 
+var JWT_COOKIE_NAME$1 = 'authservice-jwt';
+var LOGIN_TIMEOUT_DAYS$1 = 3;
+var AuthserviceBounceComponent = {
+  render: function render() {
+    var _vm = this;
+
+    var _h = _vm.$createElement;
+
+    var _c = _vm._self._c || _h;
+
+    return _c('p', [_c('br'), _vm._v("      "), _c('a', {
+      attrs: {
+        "href": _vm.url
+      }
+    }, [_vm._v(_vm._s(_vm.url))])]);
+  },
+  staticRenderFns: [],
+  name: 'authservice-bounce-component',
+  props: ['debug'],
+  data: function data() {
+    return {
+      url: ''
+    };
+  },
+  computed: {
+    bounceURL: function bounceURL() {
+      return this.$route.params.url;
+    }
+  },
+  created: function created() {
+    if (this.$route && this.$route.params && typeof window != 'undefined') {
+      bounce(this, false);
+    }
+  } // When this is called from a page, two things happen.
+  //  1. If there is a 'AUTHSERVICE_JWT' parameter to the page it gets stored as a cookie.
+  //  2. If there is a 'next' parameter, we jump to that URL.
+  //  3. If there is a 'AUTHSERVICE_EMAIL_TOKEN' parameter, we add it to the 'next' URL.
+
+};
+
+function bounce(me, debug) {
+  // See what parameters we've been passed
+  var parsed = QueryString.parse(window.location.search);
+  var jwt = parsed['AUTHSERVICE_JWT'];
+  var next64 = parsed['next']; //const debug |= parsed['debug']
+
+  if (parsed['debug']) {
+    debug = true;
+  }
+
+  if (jwt && !Date) {
+    console.log("*** setting JWT cookie ".concat(JWT_COOKIE_NAME$1));
+    setCookie(JWT_COOKIE_NAME$1, jwt, LOGIN_TIMEOUT_DAYS$1);
+  } // See where we are going to next
+
+
+  var next = new Buffer(next64, 'base64').toString('ascii'); //- console.log(`next=${next}`)
+  // If we have an email token, add it the the new URL
+
+  var emailToken = parsed['AUTHSERVICE_EMAIL_TOKEN'];
+
+  if (emailToken) {
+    var nextParsed = URL.parse(next, true); //- console.log(`next:`, nextParsed)
+
+    nextParsed.query['AUTHSERVICE_EMAIL_TOKEN'] = emailToken;
+    next = URL.format(nextParsed); //- console.log(`Revised next=`, next)
+  } //debug = true
+
+
+  if (debug) {// Debugging, so don't actually redirect.
+    //- setTimeout(function () {
+    //-   window.location = next
+    //- }, 5000)
+  } else {
+    window.location = next;
+  }
+}
+
+function setCookie(cname, cvalue, exdays) {
+  // console.log('setCookie(' + cname + ', ' + cvalue + ')')
+  console.log('setCookie(' + cname + ')');
+  var d = new Date();
+  d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
+  var expires = 'expires=' + d.toUTCString();
+  document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
+} // setCookie()
+
+var AuthserviceUserList = {
+  render: function render() {
+    var _vm = this;
+
+    var _h = _vm.$createElement;
+
+    var _c = _vm._self._c || _h;
+
+    return _c('div', {
+      directives: [{
+        name: "show",
+        rawName: "v-show",
+        value: _vm.selectStatus == 'loaded',
+        expression: "selectStatus == 'loaded'"
+      }],
+      staticClass: "list"
+    }, [_c('div', {
+      staticClass: "columns"
+    }, [_c('div', {
+      staticClass: "column is-2 is-offset-10"
+    }, [_c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "control has-icons-right"
+    }, [_c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.filterKey,
+        expression: "filterKey"
+      }],
+      staticClass: "input is-small is-rounded",
+      attrs: {
+        "type": "text",
+        "placeholder": "filter users",
+        "autocomplete": "off"
+      },
+      domProps: {
+        "value": _vm.filterKey
+      },
+      on: {
+        "input": function input($event) {
+          if ($event.target.composing) {
+            return;
+          }
+
+          _vm.filterKey = $event.target.value;
+        }
+      }
+    }), _vm._m(0)])])])]), _c('table', {
+      staticClass: "table is-fullwidth is-bordered is-narrow",
+      class: {
+        'is-hoverable': typeof _vm.pathForDetails === 'string'
+      }
+    }, [_c('thead', [_c('tr', _vm._l(_vm.ourColumns, function (key) {
+      return _c('th', {
+        class: {
+          active: _vm.sortKey == key
+        },
+        on: {
+          "click": function click($event) {
+            _vm.sortBy(key);
+          }
+        }
+      }, [_vm._v(_vm._s(_vm._f("capitalize")(key))), _c('span', {
+        staticClass: "arrow",
+        class: _vm.sortOrders[key] > 0 ? 'asc' : 'dsc'
+      })]);
+    }))]), _c('tbody', _vm._l(_vm.filteredData, function (entry) {
+      return _c('tr', {
+        on: {
+          "click": function click($event) {
+            _vm.selectUser(entry);
+          }
+        }
+      }, _vm._l(_vm.ourColumns, function (key) {
+        return _c('td', {
+          class: _vm.classForStatus(entry, key)
+        }, [key === 'icon' ? _c('div', {
+          staticClass: "has-text-centered"
+        }, [_c('i', {
+          staticClass: "fa type-icon",
+          class: _vm.iconClass(entry)
+        })]) : _c('span', [_vm._v(_vm._s(entry[key]))])]);
+      }));
+    }))])]);
+  },
+  staticRenderFns: [function () {
+    var _vm = this;
+
+    var _h = _vm.$createElement;
+
+    var _c = _vm._self._c || _h;
+
+    return _c('div', {
+      staticClass: "icon is-small is-right"
+    }, [_c('i', {
+      staticClass: "fa fa-search"
+    })]);
+  }],
+  _scopeId: 'data-v-861b7d94',
+  name: 'userList',
+  props: {
+    pathForDetails: String,
+    data: Array,
+    columns: Array,
+    tenant: String
+  },
+  data: function data() {
+    // Has the user provided a list of columns?
+    var ourColumns = this.columns;
+
+    if (typeof this.columns === 'undefined') {
+      ourColumns = [// Default only - may be replaced with 'columns' prop
+      'icon', 'authority', 'first_name', 'last_name', 'username', 'email', 'id', 'status'];
+    } // Order for sorting fields
+
+
+    var sortOrders = {};
+    ourColumns.forEach(function (key) {
+      sortOrders[key] = 1;
+    }); // Return the data fields
+
+    return {
+      sortKey: '',
+      sortOrders: sortOrders,
+      filterKey: '',
+      ourColumns: ourColumns,
+      locallySelectedUsers: [],
+      selectStatus: 'init'
+    };
+  },
+  computed: {
+    // userList: {
+    //   return (this.data) ? (this.data) : (this.locallySelectedUsers)
+    // },
+    filteredData: function filteredData() {
+      var sortKey = this.sortKey;
+      var filterKey = this.filterKey && this.filterKey.toLowerCase();
+      var order = this.sortOrders[sortKey] || 1; //var data = this.data
+
+      var data = this.data ? this.data : this.locallySelectedUsers;
+
+      if (filterKey) {
+        data = data.filter(function (row) {
+          return Object.keys(row).some(function (key) {
+            return String(row[key]).toLowerCase().indexOf(filterKey) > -1;
+          });
+        });
+      }
+
+      if (sortKey) {
+        data = data.slice().sort(function (a, b) {
+          a = a[sortKey];
+          b = b[sortKey];
+          return (a === b ? 0 : a > b ? 1 : -1) * order;
+        });
+      }
+
+      return data;
+    }
+  },
+  filters: {
+    capitalize: function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+  },
+  methods: {
+    sortBy: function sortBy(key) {
+      this.sortKey = key;
+      this.sortOrders[key] = this.sortOrders[key] * -1;
+    },
+    selectUser: function selectUser(user) {
+      console.log("Selected user:", user);
+      console.log('pathForDetails:', _typeof(this.pathForDetails));
+
+      if (this.pathForDetails) {
+        // Check that we have places in the path where we insert tenant and userId.
+        // For example '/myapp/{TENANT}/user/{USERID}'
+        var tenantMarker = '{TENANT}';
+        var userIdMarker = '{USERID}';
+        var replaceTenant = this.pathForDetails.includes(tenantMarker);
+        var replaceUserId = this.pathForDetails.includes(userIdMarker);
+
+        if (replaceTenant && replaceUserId) {
+          // Work out where are jumping to
+          var path = this.pathForDetails;
+          path = path.replace(tenantMarker, user.tenant);
+          path = path.replace(userIdMarker, user.id);
+          alert("Jumping to ".concat(path)); // Jump to the user details page
+          // See http://router.vuejs.org/en/essentials/navigation.html
+          // this.$router.push({ path: `/user-details/${user.tenant}/${user.id}` })
+
+          this.$router.push({
+            path: path
+          });
+        } else {
+          console.error("path-for-details must include ".concat(tenantMarker, " and ").concat(userIdMarker, ". e.g. /user-details/{TENANT}/{USERID}"));
+        }
+      }
+    },
+    classForStatus: function classForStatus(user, key) {
+      if (key === 'status') {
+        return "status-".concat(user.status, " status-field");
+      } else {
+        return "status-".concat(user.status);
+      }
+    },
+    iconClass: function iconClass(user, key) {
+      var cls;
+
+      if (user.is_admin) {
+        cls = 'fa-bolt';
+      } else {
+        switch (user.entity_type) {
+          case 'user':
+            cls = 'fa-user';
+            break;
+
+          case 'organisation':
+            cls = 'fa-users';
+            break;
+          // case 'club': cls = 'fa-users'; break
+          // case 'company': cls = 'fa-users'; break
+          // case 'group': cls = 'fa-users'; break
+          // case 'role': cls = 'fa-users'; break
+
+          default:
+            cls = 'fa-question';
+        }
+      }
+
+      return cls;
+    }
+  },
+  created: function created() {
+    var _this = this;
+
+    if (this.data) {
+      // Might be empty now, but they will arrive (hopefully) once the parent has them
+      console.log('authservice-user-list has data:', this.data.length);
+    } else if (this.tenant) {
+      // Select the users for this username/app (i.e. tenant).
+      console.log('authservice-user-list is selecting users');
+      var url = "".concat(this.$authservice.endpoint(), "/").concat(this.tenant, "/users");
+      var params = {
+        method: 'get',
+        url: url,
+        headers: {
+          'Authorization': 'Bearer ' + this.$authservice.jwt,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      };
+      console.log('params:', params);
+      axios(params).then(function (response) {
+        // JSON responses are automatically parsed.
+        _this.locallySelectedUsers = response.data;
+        _this.selectStatus = 'loaded';
+        return;
+      }).catch(function (e) {
+        console.log('Error selecting users:', e);
+        axiosError(_this, url, params, e);
+        _this.selectStatus = 'error';
+      });
+    } else {
+      //${this.$route.params.username}/${this.$route.params.appname}
+      console.error('authservice-user-list requires either data or tenant prop');
+    }
+  }
+};
+
+var AuthserviceUserDetails = {
+  render: function render() {
+    var _vm = this;
+
+    var _h = _vm.$createElement;
+
+    var _c = _vm._self._c || _h;
+
+    return _c('div', {
+      staticClass: "authservice-profile"
+    }, [_vm.selectError ? _c('div', [_vm._m(0)]) : _c('div', [_c('div', {
+      staticClass: "columns"
+    }, [_c('div', {
+      staticClass: "column is-3 has-text-centered"
+    }, [_c('div', {
+      staticClass: "a3-logo"
+    }, [_vm.user.authority === 'email' ? _c('i', {
+      staticClass: "fa fa-envelope-o"
+    }) : _vm.user.authority === 'facebook' ? _c('i', {
+      staticClass: "fa fa-facebook-official"
+    }) : _vm.user.authority === 'github' ? _c('i', {
+      staticClass: "fa fa-github"
+    }) : _vm.user.authority === 'google' ? _c('i', {
+      staticClass: "fa fa-google"
+    }) : _vm.user.authority === 'linkedin' ? _c('i', {
+      staticClass: "fa fa-linkedin-square"
+    }) : _vm.user.authority === 'twitter' ? _c('i', {
+      staticClass: "fa fa-twitter"
+    }) : _vm._e()]), _c('h3', {
+      staticClass: "is-5"
+    }, [_vm._v(_vm._s(_vm.loginDescription))]), _c('span', {
+      directives: [{
+        name: "show",
+        rawName: "v-show",
+        value: _vm.user.is_admin,
+        expression: "user.is_admin"
+      }]
+    }, [_vm._v("[administrator]")]), _c('br'), _c('br'), _c('br'), _c('br'), _c('br'), _c('br'), _vm.mayUpdateUser ? _c('button', {
+      staticClass: "button is-info",
+      on: {
+        "click": _vm.onSubmit
+      }
+    }, [_vm._v("Update")]) : _vm._e(), _vm.mayChangePassword ? _c('div', [_c('br'), _c('br'), _vm.mayChangePassword ? _c('authservice-change-password', {
+      attrs: {
+        "user": _vm.user,
+        "demo": _vm.demo,
+        "email-token": _vm.emailToken
+      }
+    }) : _vm._e()], 1) : _vm._e()]), _c('div', {
+      staticClass: "column is-8"
+    }, [_c('form', [_vm.user.authority === 'email' ? _c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("Username")]), _c('div', {
+      staticClass: "control"
+    }, [_c('b', [_vm._v(_vm._s(_vm.user.username))])])]) : _vm._e(), _c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "columns"
+    }, [_c('div', {
+      staticClass: "column is-6"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("Tenant")]), _c('div', {
+      staticClass: "control"
+    }, [_c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.user.tenant,
+        expression: "user.tenant"
+      }],
+      staticClass: "input",
+      attrs: {
+        "type": "text",
+        "placeholder": "First name",
+        "autocomplete": "off",
+        "disabled": "disabled"
+      },
+      domProps: {
+        "value": _vm.user.tenant
+      },
+      on: {
+        "input": function input($event) {
+          if ($event.target.composing) {
+            return;
+          }
+
+          _vm.$set(_vm.user, "tenant", $event.target.value);
+        }
+      }
+    })])]), _c('div', {
+      staticClass: "column is-6"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("Email")]), _c('div', {
+      staticClass: "control"
+    }, [_c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.user.email,
+        expression: "user.email"
+      }],
+      staticClass: "input",
+      attrs: {
+        "type": "text",
+        "placeholder": "First name",
+        "autocomplete": "off",
+        "disabled": "disabled"
+      },
+      domProps: {
+        "value": _vm.user.email
+      },
+      on: {
+        "input": function input($event) {
+          if ($event.target.composing) {
+            return;
+          }
+
+          _vm.$set(_vm.user, "email", $event.target.value);
+        }
+      }
+    })])])])]), _c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("Name")]), _c('div', {
+      staticClass: "columns"
+    }, [_c('div', {
+      staticClass: "column is-4"
+    }, [_c('div', {
+      staticClass: "control"
+    }, [_c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.user.first_name,
+        expression: "user.first_name"
+      }],
+      staticClass: "input",
+      attrs: {
+        "type": "text",
+        "placeholder": "First name",
+        "autocomplete": "off",
+        "disabled": !_vm.mayUpdateName
+      },
+      domProps: {
+        "value": _vm.user.first_name
+      },
+      on: {
+        "input": function input($event) {
+          if ($event.target.composing) {
+            return;
+          }
+
+          _vm.$set(_vm.user, "first_name", $event.target.value);
+        }
+      }
+    })])]), _c('div', {
+      staticClass: "column is-4"
+    }, [_c('div', {
+      staticClass: "control"
+    }, [_c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.user.middle_name,
+        expression: "user.middle_name"
+      }],
+      staticClass: "input",
+      attrs: {
+        "type": "text",
+        "placeholder": "Middle name",
+        "autocomplete": "off",
+        "disabled": !_vm.mayUpdateName
+      },
+      domProps: {
+        "value": _vm.user.middle_name
+      },
+      on: {
+        "input": function input($event) {
+          if ($event.target.composing) {
+            return;
+          }
+
+          _vm.$set(_vm.user, "middle_name", $event.target.value);
+        }
+      }
+    })])]), _c('div', {
+      staticClass: "column is-4"
+    }, [_c('div', {
+      staticClass: "control"
+    }, [_c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.user.last_name,
+        expression: "user.last_name"
+      }],
+      staticClass: "input",
+      attrs: {
+        "type": "text",
+        "placeholder": "Last name",
+        "autocomplete": "off",
+        "disabled": !_vm.mayUpdateName
+      },
+      domProps: {
+        "value": _vm.user.last_name
+      },
+      on: {
+        "input": function input($event) {
+          if ($event.target.composing) {
+            return;
+          }
+
+          _vm.$set(_vm.user, "last_name", $event.target.value);
+        }
+      }
+    })])])])]), _c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("Full Name")]), _c('div', {
+      staticClass: "control"
+    }, [_c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.user.full_name,
+        expression: "user.full_name"
+      }],
+      staticClass: "input",
+      attrs: {
+        "type": "text",
+        "placeholder": "Fullname",
+        "autocomplete": "off",
+        "disabled": !_vm.mayUpdateName
+      },
+      domProps: {
+        "value": _vm.user.full_name
+      },
+      on: {
+        "input": function input($event) {
+          if ($event.target.composing) {
+            return;
+          }
+
+          _vm.$set(_vm.user, "full_name", $event.target.value);
+        }
+      }
+    })])]), _vm.showStatusFields ? _c('div', [_c('br'), _c('hr'), _c('br'), _vm._m(1), _vm.mayUpdateStatus && _vm.editingOwnDetails ? _c('div', {
+      staticClass: "notification is-warning"
+    }, [_vm._m(2)]) : _vm._e(), _c('div', {
+      staticClass: "columns"
+    }, [_c('div', {
+      staticClass: "column is-1"
+    }), _c('div', {
+      staticClass: "column is-4"
+    }, [_c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("User Status")]), _c('div', {
+      staticClass: "control"
+    }, [_c('div', {
+      staticClass: "select"
+    }, [_c('select', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.user.status,
+        expression: "user.status"
+      }],
+      staticClass: "input",
+      attrs: {
+        "disabled": !_vm.mayUpdateStatus
+      },
+      on: {
+        "change": function change($event) {
+          var $$selectedVal = Array.prototype.filter.call($event.target.options, function (o) {
+            return o.selected;
+          }).map(function (o) {
+            var val = "_value" in o ? o._value : o.value;
+            return val;
+          });
+
+          _vm.$set(_vm.user, "status", $event.target.multiple ? $$selectedVal : $$selectedVal[0]);
+        }
+      }
+    }, [_c('option', {
+      attrs: {
+        "value": "active"
+      }
+    }, [_vm._v("Active")]), _c('option', {
+      attrs: {
+        "value": "blacklisted"
+      }
+    }, [_vm._v("Blacklisted")]), _c('option', {
+      attrs: {
+        "value": "closed"
+      }
+    }, [_vm._v("Closed")]), _c('option', {
+      attrs: {
+        "value": "pending"
+      }
+    }, [_vm._v("Waiting for Verification")]), _c('option', {
+      attrs: {
+        "value": "suspended"
+      }
+    }, [_vm._v("Suspended")])])])])])]), _vm.user.authority === 'email' ? _c('div', {
+      staticClass: "column is-4"
+    }, [_c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("Email Address Status")]), _c('div', {
+      staticClass: "control"
+    }, [_c('div', {
+      staticClass: "select"
+    }, [_c('select', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.user.email_status,
+        expression: "user.email_status"
+      }],
+      staticClass: "input",
+      attrs: {
+        "disabled": !_vm.mayUpdateStatus
+      },
+      on: {
+        "change": function change($event) {
+          var $$selectedVal = Array.prototype.filter.call($event.target.options, function (o) {
+            return o.selected;
+          }).map(function (o) {
+            var val = "_value" in o ? o._value : o.value;
+            return val;
+          });
+
+          _vm.$set(_vm.user, "email_status", $event.target.multiple ? $$selectedVal : $$selectedVal[0]);
+        }
+      }
+    }, [_c('option', {
+      attrs: {
+        "value": "blacklisted"
+      }
+    }, [_vm._v("Blacklisted")]), _c('option', {
+      attrs: {
+        "value": "disabled"
+      }
+    }, [_vm._v("Disabled")]), _c('option', {
+      attrs: {
+        "value": "unverified"
+      }
+    }, [_vm._v("Unverified")]), _c('option', {
+      attrs: {
+        "value": "verified"
+      }
+    }, [_vm._v("Verified")])])])])])]) : _vm._e(), _c('div', {
+      staticClass: "column is-4"
+    }, [_c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("Is Administrator")]), _c('div', {
+      staticClass: "control"
+    }, [_c('div', {
+      staticClass: "select"
+    }, [_c('select', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.user.is_admin,
+        expression: "user.is_admin"
+      }],
+      staticClass: "input",
+      attrs: {
+        "disabled": !_vm.mayUpdateStatus
+      },
+      on: {
+        "change": function change($event) {
+          var $$selectedVal = Array.prototype.filter.call($event.target.options, function (o) {
+            return o.selected;
+          }).map(function (o) {
+            var val = "_value" in o ? o._value : o.value;
+            return val;
+          });
+
+          _vm.$set(_vm.user, "is_admin", $event.target.multiple ? $$selectedVal : $$selectedVal[0]);
+        }
+      }
+    }, [_c('option', {
+      domProps: {
+        "value": false
+      }
+    }, [_vm._v("No")]), _c('option', {
+      domProps: {
+        "value": true
+      }
+    }, [_vm._v("Yes")])])])])])])])]) : _vm._e(), _vm.showSocialMediaFields ? _c('div', [_c('br'), _c('br'), _c('hr'), _vm._m(3), _c('figure', {
+      staticClass: "image is-64x64 is-pulled-right"
+    }, [_c('img', {
+      attrs: {
+        "src": _vm.user.avatar
+      }
+    })]), _c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("Media Page")]), _c('div', {
+      staticClass: "control"
+    }, [_c('a', {
+      attrs: {
+        "href": _vm.user.media_page,
+        "target": "_blank"
+      }
+    }, [_vm._v(_vm._s(_vm.user.media_page))])])]), _c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("Languages")]), _c('div', {
+      staticClass: "control"
+    }, [_c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.user.languages,
+        expression: "user.languages"
+      }],
+      staticClass: "input",
+      attrs: {
+        "type": "text",
+        "autocomplete": "off",
+        "disabled": "disabled"
+      },
+      domProps: {
+        "value": _vm.user.languages
+      },
+      on: {
+        "input": function input($event) {
+          if ($event.target.composing) {
+            return;
+          }
+
+          _vm.$set(_vm.user, "languages", $event.target.value);
+        }
+      }
+    })])]), _c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("Locale")]), _c('div', {
+      staticClass: "control"
+    }, [_c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.user.locale,
+        expression: "user.locale"
+      }],
+      staticClass: "input",
+      attrs: {
+        "type": "text",
+        "autocomplete": "off",
+        "disabled": "disabled"
+      },
+      domProps: {
+        "value": _vm.user.locale
+      },
+      on: {
+        "input": function input($event) {
+          if ($event.target.composing) {
+            return;
+          }
+
+          _vm.$set(_vm.user, "locale", $event.target.value);
+        }
+      }
+    })])]), _c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("Location")]), _c('div', {
+      staticClass: "control"
+    }, [_c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.user.location,
+        expression: "user.location"
+      }],
+      staticClass: "input",
+      attrs: {
+        "type": "text",
+        "autocomplete": "off",
+        "disabled": "disabled"
+      },
+      domProps: {
+        "value": _vm.user.location
+      },
+      on: {
+        "input": function input($event) {
+          if ($event.target.composing) {
+            return;
+          }
+
+          _vm.$set(_vm.user, "location", $event.target.value);
+        }
+      }
+    })])]), _c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("Timezone")]), _c('div', {
+      staticClass: "control"
+    }, [_c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.user.timezone,
+        expression: "user.timezone"
+      }],
+      staticClass: "input",
+      attrs: {
+        "type": "text",
+        "autocomplete": "off",
+        "disabled": "disabled"
+      },
+      domProps: {
+        "value": _vm.user.timezone
+      },
+      on: {
+        "input": function input($event) {
+          if ($event.target.composing) {
+            return;
+          }
+
+          _vm.$set(_vm.user, "timezone", $event.target.value);
+        }
+      }
+    })])])]) : _vm._e(), _vm.showPermissionFields ? _c('div', [_c('br'), _c('br'), _c('hr'), _vm._m(4), _c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("Rights")]), _c('div', {
+      staticClass: "control"
+    }, [_vm._v("    " + _vm._s(_vm.user.rights))])]), _c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("Privileges")]), _c('div', {
+      staticClass: "control"
+    }, [_vm._v("    " + _vm._s(_vm.user.privileges))])])]) : _vm._e()]), _c('br'), _c('br'), _c('br'), _c('br'), _c('div', {
+      staticClass: "has-text-right is-size-7"
+    }, [_vm._v("[ID=" + _vm._s(_vm.user.id) + "]")])])])])]);
+  },
+  staticRenderFns: [function () {
+    var _vm = this;
+
+    var _h = _vm.$createElement;
+
+    var _c = _vm._self._c || _h;
+
+    return _c('div', {
+      staticClass: "notification is-danger"
+    }, [_c('p', [_vm._v("Error: We were unable to select the user details.")]), _c('p', [_vm._v("This may mean that you do not have permission, or it could be a network or server error.")])]);
+  }, function () {
+    var _vm = this;
+
+    var _h = _vm.$createElement;
+
+    var _c = _vm._self._c || _h;
+
+    return _c('div', {
+      staticClass: "has-text-centered"
+    }, [_c('h2', {
+      staticClass: "title is-3"
+    }, [_vm._v("Account Status")])]);
+  }, function () {
+    var _vm = this;
+
+    var _h = _vm.$createElement;
+
+    var _c = _vm._self._c || _h;
+
+    return _c('p', [_vm._v("WARNING!"), _c('br'), _vm._v("Updating these fields may remove your ability to log in or act as administrator.")]);
+  }, function () {
+    var _vm = this;
+
+    var _h = _vm.$createElement;
+
+    var _c = _vm._self._c || _h;
+
+    return _c('div', {
+      staticClass: "has-text-centered"
+    }, [_c('h2', {
+      staticClass: "title is-3"
+    }, [_vm._v("Social Media Login")])]);
+  }, function () {
+    var _vm = this;
+
+    var _h = _vm.$createElement;
+
+    var _c = _vm._self._c || _h;
+
+    return _c('div', {
+      staticClass: "has-text-centered"
+    }, [_c('h2', {
+      staticClass: "title is-3"
+    }, [_vm._v("Permissions")])]);
+  }],
+  _scopeId: 'data-v-698136da',
+  name: 'authservice-profile',
+  components: {
+    AuthserviceChangePassword: AuthserviceChangePassword
+  },
+  props: {
+    // Key of user
+    tenant: {
+      type: String,
+      required: true
+    },
+    userId: {
+      type: String,
+      required: true
+    },
+    // Display options
+    demo: {
+      type: Boolean | String,
+      default: false
+    },
+    showStatus: {
+      type: Boolean | String,
+      default: false
+    },
+    showPermissions: {
+      type: Boolean | String,
+      default: false
+    },
+    changePassword: {
+      type: Boolean | String,
+      default: false
+    }
+  },
+  data: function data() {
+    return {
+      user: {},
+      selectError: false // Error calling the API to get user details
+
+    };
+  },
+  computed: {
+    loginDescription: function loginDescription() {
+      if (this.user && this.user.authority) {
+        if (this.user.authority === 'email') {
+          // Regular login
+          if (this.user.Username) {
+            return "Username / Password";
+          } else {
+            return "Email / Password";
+          }
+        } else {
+          // Social media login
+          var part1 = this.user.authority.substring(0, 1).toUpperCase();
+          var part2 = this.user.authority.substring(1);
+          return "Login using ".concat(part1).concat(part2);
+        }
+      }
+
+      return null;
+    },
+    // Are we using 'username' to login?
+    useUsername: function useUsername() {
+      return false;
+    },
+    // Can we change the name fields
+    mayUpdateName: function mayUpdateName() {
+      return (this.editingOwnDetails || this.haveAdminPrivileges) && this.user && this.user.authority === 'email';
+    },
+    mayUpdateUser: function mayUpdateUser() {
+      return this.editingOwnDetails || this.haveAdminPrivileges;
+    },
+    mayUpdateStatus: function mayUpdateStatus() {
+      return this.haveAdminPrivileges;
+    },
+    // Are we in demo mode?
+    isDemo: function isDemo() {
+      return typeof this.demo == 'boolean' && this.demo || typeof this.demo == 'string' && this.demo !== '';
+    },
+    // Show the status fields?
+    showStatusFields: function showStatusFields() {
+      console.log('this.showStatus', this.showStatus);
+      console.log('this.showStatus', _typeof(this.showStatus));
+      return typeof this.showStatus == 'boolean' && this.showStatus || typeof this.showStatus == 'string' && this.showStatus !== 'false';
+    },
+    showSocialMediaFields: function showSocialMediaFields() {
+      return this.user && this.user.authority !== 'email';
+    },
+    // Show Permission fields
+    showPermissionFields: function showPermissionFields() {
+      console.log('this.showPermissions', this.showPermissions);
+      console.log('this.showPermissions', _typeof(this.showPermissions));
+      return typeof this.showPermissions == 'boolean' && this.showPermissions || typeof this.showPermissions == 'string' && this.showPermissions !== 'false';
+    },
+    // See if the current user is editing their own record
+    editingOwnDetails: function editingOwnDetails() {
+      if (this.$authservice.user.tenant === this.user.tenant && this.$authservice.user.id === this.user.id) {
+        console.log("- User updating themself");
+        return true;
+      }
+
+      return false;
+    },
+    // Return true if this user has some sort of admin privileges
+    // for the user record being edited.
+    // Note: these rules only effect the UI - the real check is on
+    // the server in ApplicationAccess.go
+    haveAdminPrivileges: function haveAdminPrivileges() {
+      console.log("haveAdminPrivileges()");
+      console.log("$authservice.user=", this.$authservice.user);
+      console.log("this.user=", this.user);
+      console.log("$route.params.username=", this.$route.params.username);
+      console.log("$route.params.appname=", this.$route.params.appname); //return false
+      // See if this is some sort of admin user
+
+      if (this.$authservice.user.tenant === 'genesis/a3') {
+        //  1. An genesis/a3 admin user may access anything.
+        if (this.$authservice.user.isAdmin) {
+          console.log("- A3 admin");
+          return true;
+        } //  2. A user has full access to users in their own applications.
+
+
+        if (this.$route.params.username === this.$authservice.user.username) {
+          console.log("- Owner of the application");
+          return true;
+        }
+      } //  3. An admin user has full access to users in the application
+      //    they are logged into.
+
+
+      if (this.$authservice.user.isAdmin && this.$authservice.user.tenant === "".concat(this.$route.params.username, "/").concat(this.$route.params.appname)) {
+        console.log("- Current application's admin");
+        return true;
+      } //  4. A user who is a member of an organisation has access to all
+      //    the organisations application, and admin permissions according
+      //    to their member record.
+      //  5. A user granted access to an application has access according
+      //     to the grant definition.
+
+
+      return false;
+    },
+    // Can we change the user's password?
+    mayChangePassword: function mayChangePassword() {
+      console.log('this.changePassword', this.changePassword);
+      console.log('this.changePassword', _typeof(this.changePassword)); // Do we even want to change password?
+
+      if (typeof this.changePassword == 'boolean' && !this.changePassword || typeof this.changePassword == 'string' && this.changePassword === 'false') {
+        return false;
+      } // Are we allowed to change the password?
+
+
+      if (this.user && this.user.authority === 'email') {
+        return this.editingOwnDetails || this.haveAdminPrivileges;
+      }
+
+      return false;
+    },
+    emailToken: function emailToken() {
+      if (this.editingOwnDetails) {
+        // If we came into the page with a AUTHSERVICE_EMAIL_TOKEN parameter in
+        // the URL, then jump straight into the change password screen.
+        var token = this.$route.query['AUTHSERVICE_EMAIL_TOKEN'];
+        return token;
+      }
+
+      return null;
+    }
+  },
+  methods: {
+    // Load details of the specified user from the server.
+    loadUserDetails: function loadUserDetails() {
+      var _this = this;
+
+      var url = "".concat(this.$authservice.endpoint(), "/").concat(this.tenant, "/user/").concat(this.userId); // console.log(`url is ${url}`)
+
+      var params = {
+        method: 'get',
+        url: url,
+        headers: {
+          'Authorization': 'Bearer ' + this.$authservice.jwt,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      };
+      axios(params).then(function (response) {
+        // JSON responses are automatically parsed.
+        console.log("RESPONSE IS", response.data);
+        _this.user = response.data[0];
+      }).catch(function (e) {
+        axiosError(_this, url, params, e);
+        _this.selectError = true;
+      });
+    },
+    onSubmit: function onSubmit(evt) {
+      var _this2 = this;
+
+      if (this.isDemo) {
+        this.modalIsActive = false;
+        this.$toast.open({
+          message: "Password not updated (demo mode)",
+          type: 'is-info',
+          duration: 4000
+        });
+        return;
+      } // Save our copy of the application, and reclone it again.
+
+
+      evt.preventDefault();
+      var data = {
+        tenant: this.tenant,
+        id: this.userId
+      };
+
+      if (this.mayUpdateName) {
+        data.first_name = this.user.first_name;
+        data.middle_name = this.user.middle_name;
+        data.last_name = this.user.last_name;
+        data.full_name = this.user.full_name;
+      }
+
+      if (this.mayUpdateStatus) {
+        data.status = this.user.status;
+        data.email_status = this.user.email_status;
+        data.is_admin = this.user.is_admin;
+      } // Save the user record
+
+
+      console.log('Saving:', this.user); // console.log(`email status is ${this.user.email_status}`)
+
+      var url = "".concat(this.$authservice.endpoint(), "/user");
+      var params = {
+        method: 'post',
+        url: url,
+        headers: {
+          'Authorization': 'Bearer ' + this.$authservice.jwt,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        data: data
+      };
+      axios(params).then(function (response) {
+        // JSON responses are automatically parsed.
+        console.log('ok. response=', response);
+
+        if (response.data && response.data.status === 'ok') {
+          // All okay
+          _this2.$toast.open({
+            message: "Changes saved",
+            type: 'is-success',
+            duration: 4000
+          });
+
+          _this2.loadUserDetails();
+        } else {
+          // Not the expected result
+          console.log('Unexpected result while updating user record. response=', response);
+
+          _this2.$toast.open({
+            message: "Error: User details might not have been updated",
+            type: 'is-danger'
+          });
+        }
+      }).catch(function (e) {
+        console.log('error. e=', e);
+        axiosError(_this2, url, params, e);
+      });
+    }
+  },
+  created: function created() {
+    this.loadUserDetails();
+  }
+};
+
+var AuthserviceChangePassword$1 = {
+  render: function render() {
+    var _vm = this;
+
+    var _h = _vm.$createElement;
+
+    var _c = _vm._self._c || _h;
+
+    return _c('div', {
+      staticClass: "authservice-change-password"
+    }, [_c('button', {
+      staticClass: "button is-small",
+      class: {
+        'is-disabled': !_vm.mayChangePassword
+      },
+      on: {
+        "click": _vm.togglePasswordModal
+      }
+    }, [_vm._v("Change password ")]), _c('div', {
+      staticClass: "modal has-text-left",
+      class: {
+        'is-active': _vm.showPasswordModal
+      }
+    }, [_c('div', {
+      staticClass: "modal-background"
+    }), _c('div', {
+      staticClass: "modal-card"
+    }, [_c('header', {
+      staticClass: "modal-card-head"
+    }, [_c('p', {
+      staticClass: "modal-card-title"
+    }, [_vm._v("Change password for user  "), _c('b', [_vm._v(_vm._s(_vm.userLabel))])]), _c('button', {
+      staticClass: "delete",
+      attrs: {
+        "aria-label": "close"
+      },
+      on: {
+        "click": _vm.togglePasswordModal
+      }
+    })]), _c('section', {
+      staticClass: "modal-card-body"
+    }, [_vm.warningMsg ? _c('div', {
+      staticClass: "notification is-danger"
+    }, [_vm._v(_vm._s(_vm.warningMsg))]) : _vm._e(), _c('form', [_vm.requireOldPassword ? _c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("Existing password")]), _c('div', {
+      staticClass: "control"
+    }, [_c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.oldPassword,
+        expression: "oldPassword"
+      }],
+      staticClass: "input",
+      attrs: {
+        "type": "password",
+        "placeholder": "Existing password",
+        "autocomplete": "off"
+      },
+      domProps: {
+        "value": _vm.oldPassword
+      },
+      on: {
+        "input": function input($event) {
+          if ($event.target.composing) {
+            return;
+          }
+
+          _vm.oldPassword = $event.target.value;
+        }
+      }
+    })])]) : _vm._e(), _c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("New password")]), _c('div', {
+      staticClass: "control"
+    }, [_c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.newPassword,
+        expression: "newPassword"
+      }],
+      staticClass: "input",
+      attrs: {
+        "type": "password",
+        "placeholder": "Please enter a password",
+        "autocomplete": "off"
+      },
+      domProps: {
+        "value": _vm.newPassword
+      },
+      on: {
+        "input": function input($event) {
+          if ($event.target.composing) {
+            return;
+          }
+
+          _vm.newPassword = $event.target.value;
+        }
+      }
+    })])]), _c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label"
+    }, [_vm._v("Confirm")]), _c('div', {
+      staticClass: "control"
+    }, [_c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.newPasswordConfirm,
+        expression: "newPasswordConfirm"
+      }],
+      staticClass: "input",
+      attrs: {
+        "type": "password",
+        "placeholder": "Enter the same password again",
+        "autocomplete": "off"
+      },
+      domProps: {
+        "value": _vm.newPasswordConfirm
+      },
+      on: {
+        "input": function input($event) {
+          if ($event.target.composing) {
+            return;
+          }
+
+          _vm.newPasswordConfirm = $event.target.value;
+        }
+      }
+    })])]), _c('div', {
+      staticClass: "field"
+    }, [_c('div', {
+      staticClass: "label passwordError"
+    }, [_vm._v(_vm._s(_vm.newPasswordError))])])])]), _c('footer', {
+      staticClass: "modal-card-foot"
+    }, [_c('button', {
+      staticClass: "button is-success",
+      attrs: {
+        "disabled": _vm.newPasswordError !== null
+      },
+      on: {
+        "click": _vm.updatePassword
+      }
+    }, [_vm._v("Update password")]), _c('button', {
+      staticClass: "button",
+      on: {
+        "click": _vm.togglePasswordModal
+      }
+    }, [_vm._v("Cancel")])])])])]);
+  },
+  staticRenderFns: [],
+  _scopeId: 'data-v-30822850',
+  name: 'authservice-change-password',
+  props: {
+    // The user to have the password updated
+    user: Object,
+    // An email token received from a 'forgotten password' email.
+    // If this is provided, we will immediately display the modal.
+    emailToken: {
+      type: String,
+      required: false
+    },
+    // In demo mode we can't actually do the update
+    demo: {
+      type: String | Boolean,
+      default: null
+    }
+  },
+  data: function data() {
+    return {
+      // Is this modal displayed at the moment?
+      modalIsActive: false,
+      // Automatically open the modal if we have an email token,
+      // but reset this once the user closes the modal.
+      autoOpen: true,
+      // Field values
+      oldPassword: '',
+      newPassword: '',
+      newPasswordConfirm: ''
+    };
+  },
+  computed: {
+    // Are we in demo mode?
+    isDemo: function isDemo() {
+      return typeof this.demo == 'boolean' && this.demo || typeof this.demo == 'string' && this.demo !== '';
+    },
+    // Should the modal be displayed?
+    showPasswordModal: function showPasswordModal() {
+      return this.modalIsActive || this.autoOpen && this.emailToken != null;
+    },
+    // Display a message before changing for superuser passwords.
+    warningMsg: function warningMsg() {
+      if (this.user && this.user.tenant === 'genesis/a3') {
+        if (this.user.username === 'genesis' || this.user.isAdmin) {
+          return "\n            WARNING!!!\n            Password retrieval is disabled for A3 administrators.\n            If you lose the password, you will not be able to reset it\n            via email.\n          ";
+        }
+      }
+
+      return null;
+    },
+    // Name of user shown in the heading
+    userLabel: function userLabel() {
+      if (this.user) {
+        if (this.user.username) {
+          return this.user.username;
+        } else {
+          return this.user.id;
+        }
+      }
+
+      return '?';
+    },
+    // Validate the password fields
+    newPasswordError: function newPasswordError() {
+      if (this.requireOldPassword && !this.oldPassword) {
+        return 'Please enter your existing password';
+      }
+
+      if (!this.newPassword) {
+        return 'Please enter your new password';
+      }
+
+      if (!this.newPassword || this.newPassword.length < 8) {
+        return 'Passwords must be eight or more character';
+      } // Other rules might be placed here
+      //zzz
+
+
+      if (!this.newPasswordConfirm) {
+        return 'Need confirmation password';
+      }
+
+      if (this.newPassword !== this.newPasswordConfirm) {
+        //console.log(`${this.newPassword} vs ${this.newPasswordConfirm}`)
+        return 'Passwords do not match';
+      }
+
+      return null;
+    },
+    // Is the currently logged in user allowed to change the password?
+    mayChangePassword: function mayChangePassword() {
+      console.log("* mayChangePassword");
+      return (this.isCurrentUser || this.haveOverridePermission) && !this.newPasswordError;
+    },
+    // Is the user the currently logged in user?
+    // (A user is allowed to change their own password)
+    isCurrentUser: function isCurrentUser() {
+      console.log("*** isCurrentUser()");
+
+      if (this.$authservice && this.$authservice.user && this.user) {
+        //console.log(`${this.$authservice.user.tenant}/${this.$authservice.user.id} VERSUS ${this.user.tenant}/${this.user.id}`)
+        if (this.$authservice.user.tenant === this.user.tenant && this.$authservice.user.id === this.user.id) {
+          console.log("- Is current user");
+          return true;
+        } else {
+          console.log("- Not current user");
+        }
+      }
+
+      return false;
+    },
+    // Return true if the currently logged in user can override the password.
+    // These rules only effect the UI. The real check is on
+    // the server in ApplicationAccess.go
+    haveOverridePermission: function haveOverridePermission() {
+      console.log("*** haveOverridePermission()");
+      console.log("".concat(this.$authservice.user.tenant, ":").concat(this.$authservice.user.username).concat(this.$authservice.user.isAdmin ? '(admin)' : ''));
+
+      if (this.$authservice && this.$authservice.user && this.user) {
+        // Is the current user an A3 user?
+        if (this.$authservice.user.tenant === 'genesis/a3') {
+          //  1. Admins for genesis/a3 can update anything.
+          if (this.$authservice.user.isAdmin) {
+            console.log("- A3 admin");
+            return true;
+          } //  2. A user has full access to users in their own applications.
+
+
+          if (this.$authservice.user.username) {
+            var tenantPrefix = "".concat(this.user.username, "/");
+
+            if (this.user.tenant.startsWith(tenantPrefix)) {
+              console.log("- Owner of the application");
+              return true;
+            }
+          }
+        } //  3. The currently logged in user is admin for the same tenant as
+        //  the user being updated.
+
+
+        if (this.$authservice.user.tenant === this.user.tenant && this.$authservice.user.isAdmin) {
+          console.log("- Current application's admin");
+          return true;
+        } //  4. A user who is a member of an organisation has access to all
+        //    the organisation's applications, and admin permissions according
+        //    to their member record.
+        //  5. A user granted access to an application has access according
+        //     to the grant definition.
+
+      }
+
+      return false;
+    },
+    // Return true if we need to ask the current password.
+    //
+    //  We won't need the old password if we have any of the following are true:
+    //
+    //    1.  An 'email_token' that was received from a forgot-password email.
+    //    2.  Have 'Change password without entering old password' set in the
+    //        configuration for this tenant/application.
+    //    3.  We have override permission (i.e. an administrator)
+    //
+    requireOldPassword: function requireOldPassword() {
+      // 1. emailToken
+      if (this.emailToken) {
+        return false;
+      } // 2. Cannot check the 'Change password without entering old password' option at this time
+      //ZZZ
+      // 3. Administrator
+
+
+      if (this.haveOverridePermission) {
+        return false;
+      } // Seems we need the old password
+
+
+      return true;
+    }
+  },
+  methods: {
+    // Show or hide this modal
+    togglePasswordModal: function togglePasswordModal(evt) {
+      console.log('togglePasswordModal()');
+
+      if (this.showPasswordModal) {
+        this.modalIsActive = false;
+        this.autoOpen = false;
+      } else {
+        this.modalIsActive = true;
+      }
+    },
+    // Do the actual update on the server
+    updatePassword: function updatePassword() {
+      var _this = this;
+
+      if (this.isDemo) {
+        this.modalIsActive = false;
+        this.$toast.open({
+          message: "Password not updated (demo mode)",
+          type: 'is-info',
+          duration: 4000
+        });
+        return;
+      } // Update the password
+
+
+      var url = "".concat(this.$authservice.endpoint(), "/user");
+      var params = {
+        method: 'post',
+        url: url,
+        headers: {
+          'Authorization': 'Bearer ' + this.$authservice.jwt,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        data: {
+          tenant: this.user.tenant,
+          id: this.user.id,
+          password: this.newPassword
+        }
+      };
+
+      if (this.emailToken) {
+        params.data.email_token = this.emailToken;
+      }
+
+      if (this.requireOldPassword) {
+        params.data.old_password = this.oldPassword;
+      }
+
+      console.log("params = ", params);
+      axios(params).then(function (response) {
+        // JSON responses are automatically parsed.
+        console.log('ok. response=', response);
+
+        if (response.data && response.data.status === 'ok') {
+          // All okay
+          _this.$toast.open({
+            message: "Password updated",
+            type: 'is-success',
+            duration: 4000
+          });
+
+          _this.oldPassword = '';
+          _this.newPassword = '';
+          _this.newPasswordConfirm = '';
+          _this.modalIsActive = false;
+          _this.autoOpen = false;
+        } else {
+          // Not the expected result
+          console.log('Unexpected result while updating password. response=', response);
+
+          _this.$toast.open({
+            message: "Error: Password might not have been updated",
+            type: 'is-danger',
+            duration: 4000
+          });
+        }
+      }).catch(function (e) {
+        console.log("response is", e.response);
+
+        if (e.response.status === 404 && e.response.data && e.response.data.Error) {
+          // Display the error message the server provided
+          _this.$toast.open({
+            message: "The password could not be updated: \"".concat(e.response.data.Error, "\""),
+            type: 'is-danger',
+            duration: 4000
+          });
+        } else {
+          axiosError(_this, url, params, e);
+        }
+      });
+    }
+  },
+  created: function created() {
+    if (this.isDemo) {
+      console.error('DEMO MODE: authservice-change-password');
+      return;
+    }
+  }
+};
+
 //import Vue from 'vue'
 var _authservice = null;
 
@@ -2311,9 +4015,7 @@ function install$1(Vue, options) {
 
   _authservice.checkInitialLoginStatus(false);
 
-  console.log('Finished checking status'); // if (install.installed) return
-  // install.installed = true
-
+  console.log('Finished checking status');
   exports._Vue = Vue;
   // list of functions to be called when new Vue is created. We'll
   // use it to look for new Vue({ authservice }). If found, we'll
@@ -2372,9 +4074,13 @@ function install$1(Vue, options) {
       return this._authserviceRoot._authservice;
     }
   }); // Define the components
-  // Vue.component('authservice-navbar', AuthserviceNavbar)
 
-  Vue.component('authservice-login', AuthserviceLogin); // Vue.component('authservice-navbar-blu', AuthserviceNavbarBlu)
+  Vue.component('authservice-login', AuthserviceLogin);
+  Vue.component('authservice-bounce-component', AuthserviceBounceComponent);
+  Vue.component('authservice-change-password', AuthserviceChangePassword$1);
+  Vue.component('authservice-user-list', AuthserviceUserList);
+  Vue.component('authservice-user-details', AuthserviceUserDetails); // Vue.component('authservice-navbar', AuthserviceNavbar)
+  // Vue.component('authservice-navbar-blu', AuthserviceNavbarBlu)
   // Vue.component('authservice-bulma', AuthserviceBulma)
   // Vue.component('my-component', MyComponent)
   // Vue.component('authservice-firstname', AuthserviceFirstname)

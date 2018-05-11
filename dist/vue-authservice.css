@@ -44,3 +44,102 @@ label {
 .register-form {
   width: 350px;
   word-wrap: break-word; }
+
+.type-icon {
+  color: #4a4a4a; }
+
+.status-active {
+  font-weight: 500; }
+
+.status-pending {
+  background-color: #f4f7f9;
+  font-weight: 250; }
+  .status-pending.status-field {
+    background-color: green;
+    color: white;
+    font-weight: 400; }
+
+.status-suspended {
+  font-weight: 250;
+  background-color: #f4f7f9; }
+  .status-suspended.status-field {
+    background-color: blue;
+    color: white; }
+
+.status-closed {
+  font-weight: 250;
+  background-color: #f4f7f9; }
+  .status-closed.status-field {
+    background-color: red;
+    color: white; }
+
+.status-blacklisted {
+  font-weight: 250;
+  background-color: #f4f7f9; }
+  .status-blacklisted.status-field {
+    background-color: black;
+    color: white; }
+
+table {
+  font-family: "Avenir Next", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 21px;
+  color: #4a4a4a;
+  border: solid 1px #147698;
+  cursor: default; }
+  table.is-hoverable {
+    cursor: pointer; }
+
+th {
+  background-color: #147698;
+  color: white !important;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  font-weight: 400;
+  padding-left: 4px;
+  white-space: nowrap; }
+
+th.active {
+  color: #ffffff;
+  font-weight: 600; }
+
+th.active .arrow {
+  opacity: 1; }
+
+td {
+  padding-left: 4px; }
+
+tr:hover {
+  background-color: #e6edf4; }
+
+.arrow {
+  color: black;
+  display: inline-block;
+  vertical-align: middle;
+  width: 0;
+  height: 0;
+  margin-left: 5px; }
+
+.arrow.asc {
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 4px solid #fff; }
+
+.arrow.dsc {
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid #fff; }
+
+
+.authservice-change-password {
+  display: inline-block; }
+  .authservice-change-password .label {
+    margin-left: 20px; }
+  .authservice-change-password .input {
+    margin-left: 20px;
+    max-width: 520px; }
+  .authservice-change-password .passwordError {
+    color: red; }

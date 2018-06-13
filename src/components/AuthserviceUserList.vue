@@ -15,7 +15,7 @@
             span.arrow(:class="sortOrders[key] > 0 ? 'asc' : 'dsc'")
       tbody
         tr(v-for="entry in filteredData" @click="selectUser(entry)")
-          td(v-for="key in ourColumns" :class="classForStatus(entry, key)")
+          td(v-for="key in ourColumns", :class="classForStatus(entry, key)")
             //- span(v-if="key === 'icon'" v-html="icon(entry)")
             .has-text-centered(v-if="key === 'icon'")
               i.fa.type-icon(:class="iconClass(entry)")

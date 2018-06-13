@@ -31,7 +31,7 @@
           .field
             .label.passwordError {{newPasswordError}}
       footer.modal-card-foot
-        button.button.is-success(@click="updatePassword" :disabled="newPasswordError !== null") Update password
+        button.button.is-success(@click="updatePassword", :disabled="newPasswordError !== null") Update password
         button.button(@click="togglePasswordModal") Cancel
 
 </template>

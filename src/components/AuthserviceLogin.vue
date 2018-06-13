@@ -77,9 +77,9 @@
               | Forgot Login Info?
           // loginWithEmail
 
-          //a.button.is-outlined(:size="'sm'" :variant="'link'" v-on:click="setMode('forgot')") Forgot password
+          //a.button.is-outlined(:size="'sm'", :variant="'link'", v-on:click="setMode('forgot')") Forgot password
           //| &nbsp;
-          //a.button.is-outlined(:size="'sm'" :variant="'link'" v-on:click="setMode('register')") Sign Up
+          //a.button.is-outlined(:size="'sm'", :variant="'link'", v-on:click="setMode('register')") Sign Up
           br
 
       .card-footer(v-if="loginWithEmail && provideRegistration")
@@ -132,7 +132,7 @@
           label.label
             | User Name
           .control.has-icons-left
-            input.input(v-model.trim="registerUsername" type="text" v-on:keydown.native="keyhandler" v-on:input="validateUsername" :state="registerUsernameState" autocomplete="off" placeholder="Choose a user name")
+            input.input(v-model.trim="registerUsername", type="text", v-on:keydown.native="keyhandler", v-on:input="validateUsername", :state="registerUsernameState", autocomplete="off", placeholder="Choose a user name")
             span.icon.is-small.is-left
               i.fa.fa-user
 
@@ -211,7 +211,7 @@
           | Please take a moment to check your email and complete
           | the registration process.
         // Should just close the dropdown VVVVV
-        // a.button(:size="'sm'" :variant="'primary'" v-on:click="setMode('login')") Ok
+        // a.button(:size="'sm'", :variant="'primary'", v-on:click="setMode('login')") Ok
         br
         button.button.is-pulled-right.is-primary(type="submit", v-on:click="setMode('login')") OK
         br

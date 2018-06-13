@@ -65,17 +65,17 @@
             .columns
               .column.is-4
                 .control
-                  input.input(type="text" placeholder="First name" v-model="user.first_name" autocomplete="off" :disabled="!mayUpdateName")
+                  input.input(type="text" placeholder="First name" v-model="user.first_name" autocomplete="off", :disabled="!mayUpdateName")
               .column.is-4
                 .control
-                  input.input(type="text" placeholder="Middle name" v-model="user.middle_name" autocomplete="off" :disabled="!mayUpdateName")
+                  input.input(type="text" placeholder="Middle name" v-model="user.middle_name" autocomplete="off", :disabled="!mayUpdateName")
               .column.is-4
                 .control
-                  input.input(type="text" placeholder="Last name" v-model="user.last_name" autocomplete="off" :disabled="!mayUpdateName")
+                  input.input(type="text" placeholder="Last name" v-model="user.last_name" autocomplete="off", :disabled="!mayUpdateName")
           .field
             .label Full Name
             .control
-              input.input(type="text" placeholder="Fullname" v-model="user.full_name" autocomplete="off" :disabled="!mayUpdateName")
+              input.input(type="text" placeholder="Fullname" v-model="user.full_name" autocomplete="off", :disabled="!mayUpdateName")
 
           //- .field
           //-   .label Client Id

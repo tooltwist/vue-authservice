@@ -10,7 +10,7 @@
     table.table.is-fullwidth.is-bordered.is-narrow(:class=" {'is-hoverable': typeof(pathForDetails) === 'string'} ")
       thead
         tr
-          th(v-for="key in ourColumns" @click="sortBy(key)" :class="{ active: sortKey == key }")
+          th(v-for="key in ourColumns", @click="sortBy(key)", :class="{ active: sortKey == key }")
             | {{ key | capitalize }}
             span.arrow(:class="sortOrders[key] > 0 ? 'asc' : 'dsc'")
       tbody

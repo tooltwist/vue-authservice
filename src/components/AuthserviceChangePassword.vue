@@ -2,7 +2,7 @@
 .authservice-change-password
 
   // Modal for password change
-  button.button.is-small(@click="togglePasswordModal" :class="{ 'is-disabled': !mayChangePassword }")
+  button.button.is-small(@click="togglePasswordModal", :class="{ 'is-disabled': !mayChangePassword }")
     | Change password&nbsp;
 
   .modal(:class="{ 'is-active': showPasswordModal }").has-text-left

@@ -108,7 +108,7 @@
         br
         br
 
-        img(v-if="$authservice.user.avatar" :src="$authservice.user.avatar", alt="")
+        img(v-if="$authservice.user.avatar", :src="$authservice.user.avatar", alt="")
         br
         br
         router-link(to='/app-settings/applications') Settings

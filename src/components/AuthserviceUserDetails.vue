@@ -40,7 +40,7 @@
         div(v-if="mayChangePassword")
           br
           br
-          authservice-change-password(v-if="mayChangePassword" :user="user" :demo="demo" :email-token="emailToken")
+          authservice-change-password(v-if="mayChangePassword", :user="user", :demo="demo", :email-token="emailToken")
 
 
       .column.is-8

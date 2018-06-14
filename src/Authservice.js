@@ -47,20 +47,58 @@ class Authservice {
     this.apikey = options.apikey
 
     // See if we are supporting email login (default to yes)
-    if (options.login && typeof(options.login.email) !== 'undefined' && !options.login.email) {
-      console.log(`Authservice(): Email is NOT supported`);
+    if (options.hints && options.hints.login && typeof(options.hints.login.email) !== 'undefined' && !options.hints.login.email) {
+      console.log(`Authservice(): Email is NOT enabled`);
       this.emailSupported = false;
     } else {
-      console.log(`Authservice(): Email IS supported`);
+      console.log(`Authservice(): Email IS enabled`);
       this.emailSupported = true;
     }
 
+    // See if we have URLs specified for successful login and failure.
+    // If these are not set, these events will return to the initiating page.
+    this.loginResume = null
+    this.loginFail = null
+    if (options.hints && options.hints.login) {
 
+      // See if we have a resumeURL
+      if (options.hints.login.resumeURL) {
+        if (typeof(options.hints.login.resumeURL) !== 'string') {
+          console.error('options.hints.login.resumeURL must be a string')
+          console.log(`Will return to current page after login`);
+        } else {
+          // Convert our resumeURL to a full URL (it is usually a relative path)
+          this.loginResume = this.URLOnThisWebsite(options.hints.login.resumeURL)
+          if (this.loginResume === null) {
+            // The resumeURL is absolute, but not to the current website's domain.
+            console.error(`options.hints.login.resumeURL not on this website: (${options.hints.login.resumeURL})`)
+            console.log(`Will return to current page after login`);
+          }
+        }
+      }
+
+      // See if we have a failURL
+      if (options.hints.login.failURL) {
+        if (typeof(options.hints.login.failURL) !== 'string') {
+          console.error('options.hints.login.failURL must be a string')
+          console.log(`Will return to current page on error`);
+        } else {
+          // Convert our failURL to a full URL (it is usually a relative path)
+          this.loginFail = this.URLOnThisWebsite(options.hints.login.failURL)
+          if (this.loginFail === null) {
+            // The failURL is absolute, but not to the current website's domain.
+            console.error(`options.hints.login.failURL not on this website: (${options.hints.login.failURL})`)
+            console.log(`Will return to current page on error`);
+          }
+        }
+      }
+    }
 
     // See if registration is allowed
     if (!this.emailSupported) {
       // login.email: false
       console.log(`Authservice(): Registration is NOT supported`);
+      console.log(`(because email is not supported)`)
       this.registrationSupported = false;
     } else if (options.hints && typeof(options.hints.register) !== 'undefined' && !options.hints.register) {
       // Check for hints.register: false
@@ -80,17 +118,26 @@ class Authservice {
         console.log(`Authservice(): Registration is NOT supported`);
         console.error('options.hints.register.resumeURL must be a string')
       } else {
-        // All good for registration
-        this.registrationSupported = true
-        //this.registerResume = options.hints.register.resumeURL
-        console.log(`Authservice(): Registration IS supported`);
+
+        // Convert our resumeURL to a full URL (it is usually a relative path)
+        this.registerResume = this.URLOnThisWebsite(options.hints.register.resumeURL)
+        if (this.registerResume === null) {
+          // The resumeURL is absolute, but not to the current website's domain.
+          console.error(`Authservice(): Registration will NOT be supported`);
+          console.log(`options.hints.register.resumeURL not on this website: (${options.hints.register.resumeURL})`)
+          this.registrationSupported = false;
+        } else {
+          // All good for registration
+          console.log(`Authservice(): Registration enabled`);
+          this.registrationSupported = true;
+        }
       }
     }
 
     // See if forgotten password is allowed
     if (!this.emailSupported) {
       // Email is not used (options.login.email is false)
-      console.log(`Authservice(): Forgotten password is NOT supported`);
+      console.error(`Authservice(): Forgotten password will NOT be supported`);
       console.log(`(because email is not supported)`)
       this.forgottenPasswordSupported = false;
     } else if (options.hints && typeof(options.hints.forgot) !== 'undefined' && !options.hints.forgot) {
@@ -99,22 +146,31 @@ class Authservice {
     } else {
       // We WILL allow forgot password. Check we have what we need.
       if (typeof(options.hints.forgot) !== 'object') {
+        console.error(`Authservice(): Forgotten password will NOT be supported`);
+        console.log('options.hints.forgot must be false, or an object')
         this.forgottenPasswordSupported = false;
-        console.log(`Authservice(): Forgotten password is NOT supported`);
-        console.error('options.hints.forgot must be false, or an object')
       } else if (!options.hints.forgot || !options.hints.forgot.resumeURL) {
+        console.error(`Authservice(): Forgotten password will NOT be supported`);
+        console.log('options.hints.forgot.resumeURL must be provided')
         this.forgottenPasswordSupported = false;
-        console.log(`Authservice(): Forgotten password is NOT supported`);
-        console.error('options.hints.forgot.resumeURL must be provided')
       }
       else if (typeof(options.hints.forgot.resumeURL) !== 'string') {
+        console.error(`Authservice(): Forgotten password will NOT be supported`);
+        console.log('options.hints.forgot.resumeURL must be a string')
         this.forgottenPasswordSupported = false;
-        console.log(`Authservice(): Forgotten password is NOT supported`);
-        console.error('options.hints.forgot.resumeURL must be a string')
       } else {
-        // All good for forgotten password
-        this.forgottenPasswordSupported = true;
-        this.forgotResume = options.hints.forgot.resumeURL
+        // Convert our resumeURL to a full URL (it is usually a relative path)
+        this.forgotResume = this.URLOnThisWebsite(options.hints.forgot.resumeURL)
+        if (this.forgotResume === null) {
+          // The resumeURL is absolute, but not to the current website's domain.
+          console.error(`Authservice(): Forgotten password will NOT be supported`);
+          console.log(`options.hints.forgot.resumeURL not on this website: (${options.hints.forgot.resumeURL})`)
+          this.forgottenPasswordSupported = false;
+        } else {
+          // All good for forgotten password
+          console.log(`Authservice(): Forgotten password enabled`);
+          this.forgottenPasswordSupported = true;
+        }
       }
     }
 
@@ -300,40 +356,26 @@ class Authservice {
   /*
    *  Kick off the OAuth2 login process.
    */
-  initiateOAuth (me, authority, relativeResumeURL, relativeFailURL) {
+  initiateOAuth (me, authority) {
     console.log(`initiateOAuth(me, ${authority})`)
 
-    // See which URL we should use for errors in OAuth2 logins.
-    // let errorURL = '/bower_components/pastac-login/test/test-error.html' // VVVVV
-    // if (me.error) {
-    //   errorURL = me.error
-    // }
-    // console.log('errorURL=' + errorURL)
-
-    // Decide where we want to end up.
-    // If a 'resume' URL has not been provided, we'll come back to this exact
-    // same URL, however with any JWT or error parameters removed.
-    const l = window.location
-    let baseURL = `${l.protocol}//${l.hostname}`
-    if (l.port) {
-      baseURL += `:${l.port}`
-    }
-    console.log('\n\nbaseURL=', baseURL)
-
-    // Where to go if the login suceeds?
-    var resumeURL
-    if (relativeResumeURL) {
+    // Where to go if the login succeeds?
+    let resumeURL
+    if (this.loginResume) {
       // Use the specified resume URL (which is a relative path)
-      resumeURL = baseURL + relativeResumeURL
+      resumeURL = this.URLOnThisWebsite(this.loginResume)
     } else {
-      // Use the current page, but with any JWT or error parameter removed.
+      // The 'resume' URL has not been provided, so we'll come back to this
+      // exact same URL, however with any JWT or error parameters removed.
+      const l = window.location
       console.log('resume to current page after oauth login', l)
       const parsed = QueryString.parse(l.search)
-      console.log(parsed)
-
       delete parsed['AUTHSERVICE_JWT']
       delete parsed['AUTHSERVICE_ERROR']
       const params = QueryString.stringify(parsed)
+      // console.log(parsed)
+
+      // Contruct the URL, with the adjusted parameters
       resumeURL = l.protocol + "//" + l.host + l.pathname
       if (params) {
         resumeURL += '?' + params
@@ -347,25 +389,23 @@ class Authservice {
     // cookie from a URL parameter, and then redirects to the 'resume' page.
     const resume64 = new Buffer(resumeURL).toString('base64')
     const params = QueryString.stringify({ next: resume64 })
-    // let hash = `#/authservice-bounce/${encodeURIComponent(resumeURL)}/true`
-    // const hash = `/authservice-bounce`
-    const hash = ``
-    // const bounceURL = `${l.protocol}//${l.host}/authservice-bounce?${params}#${hash}`
-    const bounceURL = `${baseURL}/authservice-bounce?${params}#${hash}`
+    const hash = ''
+    const bounceURL = this.URLOnThisWebsite(`/authservice-bounce?${params}#${hash}`)
     console.log('\n\nbounceURL=', bounceURL)
     const successURL = bounceURL
 
     // Where to go if the login fails?
     var failURL
-    if (relativeFailURL) {
+    if (this.loginFail) {
       // Use the specified error URL (which is a relative path)
-      failURL = baseURL + relativeFailURL
+      failURL = this.loginFail
     } else {
       failURL = bounceURL
     }
     console.log('successURL=' + successURL)
     console.log('successURL=' + encodeURIComponent(successURL))
     console.log('failURL=' + failURL)
+    console.log('failURL=' + encodeURIComponent(failURL))
 
     let url = `http://${this.host}:${this.port}/${this.version}/oauth2/initiate/${this.apikey}/${authority}`
     url += '?success=' + encodeURIComponent(successURL)
@@ -390,7 +430,11 @@ class Authservice {
 
   register (options) {
     console.log('$authservice.register()', options);
-    console.log('ok 0')
+    if (!this.registrationSupported) {
+      const error = 'Registration is not available.'
+      reject(error)
+      return
+    }
 
     return new Promise((resolve, reject) => {
       // let email = options.email
@@ -400,7 +444,6 @@ class Authservice {
       // let middleName = options.middleName
       // let lastName = options.lastName
       // let resume = options.resume
-      console.log('ok 0a')
 
       // Check email and password is valid
       switch (typeof (options.email)) {
@@ -415,20 +458,10 @@ class Authservice {
           return reject('options.email must be a string')
       }
 
-      // Check we have a URL to go to after email verification.
-      const registerOpts = (this.options.hints && this.options.hints.register) ? this.options.hints.register : { }
-      switch (typeof (registerOpts.resumeURL)) {
-        case 'string':
-          break
-        case 'undefined':
-          return reject('options.hints.register.resumeURL must be provided')
-        default:
-          return reject('options.hints.register.resumeURL must be a string')
-      }
-
+      // Prepare the parameters to the API call
       var params = {
         email: options.email,
-        resume: registerOpts.resumeURL
+        resume: this.registerResume
       }
 
       // Maybe check username is valid
@@ -465,7 +498,6 @@ class Authservice {
       //   params.username = email
       // }
 
-      console.log('ok 1')
       // Maybe check password is valid
       switch (typeof (options.password)) {
         case 'string':
@@ -480,7 +512,6 @@ class Authservice {
           return reject('If provided, options.password must be a string')
       }
 
-      console.log('ok 2')
       // Maybe check first name is valid
       switch (typeof (options.firstName)) {
         case 'string':
@@ -495,7 +526,6 @@ class Authservice {
           return reject('If provided, options.firstName must be a string')
       }
 
-      console.log('ok 3')
       // Maybe check middle name is valid
       switch (typeof (options.middleName)) {
         case 'string':
@@ -510,7 +540,6 @@ class Authservice {
           return reject('If provided, options.middleName must be a string')
       }
 
-      console.log('ok 4')
       // Maybe check last name is valid
       switch (typeof (options.lastName)) {
         case 'string':
@@ -594,32 +623,16 @@ class Authservice {
         return
       }
 
-      // Decide where we want to end up.
-      // If a 'resume' URL has not been provided, we'll come back to this exact
-      // same URL, however with any JWT or error parameters removed.
-      const l = window.location
-      let baseURL = `${l.protocol}//${l.hostname}`
-      if (l.port) {
-        baseURL += `:${l.port}`
-      }
-      console.log(`this.forgotResume=${this.forgotResume}`)
-
-      // Where to go when they click on the email link?
-      let resumeURL = this.forgotResume
-      if (resumeURL.startsWith('/')) {
-        resumeURL = baseURL + resumeURL
-      }
-      console.log(`resumeURL is ${resumeURL}`)
-
       // Get the URL to a "bounce page". This is a page that sets the JWT
       // cookie from a URL parameter, and then redirects to the 'resume' page.
-      const resume64 = new Buffer(resumeURL).toString('base64')
+      const resume64 = new Buffer(this.forgotResume).toString('base64')
       const params = QueryString.stringify({ next: resume64 })
-      const bounceURL = `${l.protocol}//${l.host}/authservice-bounce?${params}`
-      console.log('bounceURL=', bounceURL)
+      const bounceURL = this.URLOnThisWebsite(`/authservice-bounce?${params}`)
+      // console.log(`this.forgotResume=${this.forgotResume}`)
+      // console.log('bounceURL=', bounceURL)
 
       // Call the server
-      console.log('params=', params)
+      //console.log('params=', params)
       axios({
         method: 'post',
         url: this.endpoint() + '/email/forgot',
@@ -849,6 +862,44 @@ class Authservice {
 
   isForgottenPasswordSupported () {
     return this.forgottenPasswordSupported
+  }
+
+  URLOnThisWebsite (relativeURL) {
+    //console.error(`URLOnThisWebsite(${relativeURL})`)
+    //console.log(`Relative: ${relativeURL}`)
+
+    // Work out the URI part of the current page
+    const l = window.location
+    let baseURL = `${l.protocol}//${l.hostname}`
+    if (l.port) {
+      if (l.protocol === 'http' && l.port === 80) {
+        // default port
+      } else if (l.protocol === 'https' && l.port === 443) {
+        // default port
+      } else {
+        baseURL += `:${l.port}`
+      }
+    }
+    //console.log('\n\nbaseURL=', baseURL)
+
+    // Perhaps a full URL has been provided already
+    if (relativeURL.startsWith('http')) {
+
+      // Check it's on this website
+      if (relativeURL.startsWith(baseURL)) {
+        return relativeURL
+      }
+      console.log(`URL ${relativeURL} is not on current website ${baseURL}`)
+      return null
+    }
+
+    // Add on the path
+    if (!relativeURL.startsWith('/')) {
+      baseUrl += '/'
+    }
+    const absoluteURL = baseURL + relativeURL
+    //console.log(`Absolute: ${absoluteURL}`)
+    return absoluteURL
   }
 }
 

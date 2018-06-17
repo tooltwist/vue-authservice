@@ -46,6 +46,15 @@ class Authservice {
     this.version = options.version ? options.version : 'v2'
     this.apikey = options.apikey
 
+    // Which icon set to use. Loosely based on
+    // https://buefy.github.io/#/documentation/constructor-options
+    //
+    // Currently recognise:
+    //    fa (font-awsome 4)
+    //    fas (font-awsome 5)
+    this.defaultIconPack = options.defaultIconPack ? options.defaultIconPack : 'fa'
+    this.icons = (pack) => { return this.defaultIconPack === pack }
+
     // See if we are supporting email login (default to yes)
     if (options.hints && options.hints.login && typeof(options.hints.login.email) !== 'undefined' && !options.hints.login.email) {
       console.log(`Authservice(): Email is NOT enabled`);

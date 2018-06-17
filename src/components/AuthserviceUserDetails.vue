@@ -10,8 +10,22 @@
     .columns
       .column.is-3.has-text-centered
 
-        // Authority
-        .authservice-logo
+        // Show icon for the OAuth2 Authority
+
+        // Font-awesome v5
+        //.authservice-logo(v-if="$authservice.options.defaultIconPack==='fas'")
+        .authservice-logo(v-if="$authservice.icons('fas')")
+
+          i.far.fa-envelope-open(v-if="user.authority === 'email'")
+          i.fab.fa-facebook-square(v-else-if="user.authority === 'facebook'")
+          i.fab.fa-github(v-else-if="user.authority === 'github'")
+          i.fab.fa-google(v-else-if="user.authority === 'google'")
+          i.fab.fa-linkedin(v-else-if="user.authority === 'linkedin'")
+          i.fab.fa-twitter(v-else-if="user.authority === 'twitter'")
+
+        .authservice-logo(v-else)
+
+          // Font-awesome v4
           i.fa.fa-envelope-o(v-if="user.authority === 'email'")
           i.fa.fa-facebook-official(v-else-if="user.authority === 'facebook'")
           i.fa.fa-github(v-else-if="user.authority === 'github'")
@@ -49,7 +63,7 @@
           .field(v-if="user.authority === 'email'")
             .label Username
             .control
-              b {{user.username}}
+              | {{user.username}}
           .field
             .columns
               .column.is-6

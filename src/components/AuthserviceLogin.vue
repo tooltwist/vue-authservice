@@ -15,28 +15,38 @@
           div.has-text-centered
             div(v-if="allowFacebookLogin")
               a.button.social-button.is-primary(v-on:click="facebookLogin()")
-                i.fa.fa-facebook-f.has-text-white
-                | &nbsp; Login with Facebook
+                .social-button-icon
+                  i.fab.fa-facebook-f.has-text-white(v-if="$authservice.icons('fas')")
+                  i.fa.fa-facebook-f.has-text-white(v-else)
+                .social-button-text &nbsp; Login with Facebook
               br
             div(v-if="allowGoogleLogin")
               a.button.social-button.is-primary(v-on:click="googleLogin()")
-                i.fa.fa-google.has-text-white
-                | &nbsp; Login with Google
+                .social-button-icon
+                  i.fab.fa-google.has-text-white(v-if="$authservice.icons('fas')")
+                  i.fa.fa-google.has-text-white(v-else)
+                .social-button-text &nbsp; Login with Google
               br
             div(v-if="allowGithubLogin")
               a.button.social-button.is-primary(:variant="'secondary'" v-on:click="githubLogin()" tabindex="38")
-                i.fa.fa-github.has-text-white
-                | &nbsp; Login with Github
+                .social-button-icon
+                  i.fab.fa-github.has-text-white(v-if="$authservice.icons('fas')")
+                  i.fa.fa-github.has-text-white(v-else)
+                .social-button-text &nbsp; Login with Github
               br
             div(v-if="allowLinkedinLogin")
               a.button.social-button.is-primary(:variant="'secondary'" v-on:click="linkedinLogin()" tabindex="38")
-                i.fa.fa-linkedin.has-text-white
-                | &nbsp; Login with LinkedIn
+                .social-button-icon
+                  i.fab.fa-linkedin.has-text-white(v-if="$authservice.icons('fas')")
+                  i.fa.fa-linkedin.has-text-white(v-else)
+                .social-button-text &nbsp; Login with LinkedIn
               br
             div(v-if="allowTwitterLogin")
               a.button.social-button.is-primary(:variant="'secondary'" v-on:click="twitterLogin()" tabindex="38")
-                i.fa.fa-twitter.has-text-white
-                | &nbsp; Login with Twitter
+                .social-button-icon
+                  i.fab.fa-twitter.has-text-white(v-if="$authservice.icons('fas')")
+                  i.fa.fa-twitter.has-text-white(v-else)
+                .social-button-text &nbsp; Login with Twitter
               br
           div.has-text-centered(v-if="allowSocialLogin && loginWithEmail")
             br
@@ -50,20 +60,23 @@
               .control.has-icons-left
                 input.input(v-model.trim="email" type="text" v-on:keydown.native="keyhandler" placeholder="Enter your User Name")
                 span.icon.is-small.is-left
-                  i.fa.fa-user
+                  i.fas.fa-user(v-if="$authservice.icons('fas')")
+                  i.fa.fa-user(v-else)
             .field(v-else)
               label.label Email
               .control.has-icons-left
                 input.input(v-model.trim="email" type="text" v-on:keydown.native="keyhandler" placeholder="Enter an Account Email")
                 span.icon.is-small.is-left
-                  i.fa.fa-envelope-o
+                  i.far.fa-envelope-open(v-if="$authservice.icons('fas')")
+                  i.fa.fa-envelope-o(v-else)
 
             .field
               label.label Password
               .control.has-icons-left
                 input.input(v-model.trim="password" type="password" v-on:keydown.native="keyhandler" autocomplete="current-password" placeholder="Enter your Password")
                 span.icon.is-small.is-left
-                  i.fa.fa-lock
+                  i.fas.fa-lock(v-if="$authservice.icons('fas')")
+                  i.fa.fa-lock(v-else)
 
             br
             .notification.is-danger(v-if="loginError")
@@ -134,7 +147,8 @@
           .control.has-icons-left
             input.input(v-model.trim="registerUsername", type="text", v-on:keydown.native="keyhandler", v-on:input="validateUsername", :state="registerUsernameState", autocomplete="off", placeholder="Choose a user name")
             span.icon.is-small.is-left
-              i.fa.fa-user
+              i.fas.fa-user(v-if="$authservice.icons('fas')")
+              i.fa.fa-user(v-else)
 
           .notification.is-danger(v-if="registerUsernameError")
             // This will only be shown if the preceeding input has an invalid state
@@ -148,7 +162,8 @@
           .control.has-icons-left
             input.input(v-model.trim="registerEmail" type="text" v-on:keydown.native="keyhandler" placeholder="Enter your email address")
             span.icon.is-small.is-left
-              i.fa.fa-envelope-o
+              i.far.fa-envelope-open(v-if="$authservice.icons('fas')")
+              i.fa.fa-envelope-o(v-else)
 
         .field(v-if="registerRequiresPassword")
           label.label
@@ -156,7 +171,8 @@
           .control.has-icons-left
             input.input(v-model.trim="registerPassword" type="password" v-on:keydown.native="keyhandler" autocomplete="off" placeholder="Choose a password")
             span.icon.is-small.is-left
-              i.fa.fa-lock
+              i.fas.fa-lock(v-if="$authservice.icons('fas')")
+              i.fa.fa-lock(v-else)
 
         .field(v-if="registerRequiresFirstName")
           label.label
@@ -240,7 +256,8 @@
             .control.has-icons-left
               input.input(v-model.trim="forgotEmail" type="text" v-on:keydown.native="keyhandler" placeholder="Enter your Email Address")
               span.icon.is-small.is-left
-                i.fa.fa-envelope-o
+                i.far.fa-envelope-open(v-if="$authservice.icons('fas')")
+                i.fa.fa-envelope-o(v-else)
 
           .notification.is-danger(v-if="forgotError" show)
             | {{forgotError}}
@@ -882,8 +899,12 @@
     width: 210px;
     margin-top: 5px;
 
-    i.fa {
-      margin-top: -2px;
+    .social-button-icon {
+        min-width: 16px;
+    }
+    .social-button-text {
+      min-width: 110px;
+      text-align: left;
     }
   }
 

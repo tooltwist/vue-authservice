@@ -10,8 +10,22 @@
     .columns
       .column.is-3.has-text-centered
 
-        // Authority
-        .authservice-logo
+        // Show icon for the OAuth2 Authority
+
+        // Font-awesome v5
+        //.authservice-logo(v-if="$authservice.options.defaultIconPack==='fas'")
+        .authservice-logo(v-if="$authservice.icons('fas')")
+
+          i.far.fa-envelope-open(v-if="user.authority === 'email'")
+          i.fab.fa-facebook-square(v-else-if="user.authority === 'facebook'")
+          i.fab.fa-github(v-else-if="user.authority === 'github'")
+          i.fab.fa-google(v-else-if="user.authority === 'google'")
+          i.fab.fa-linkedin(v-else-if="user.authority === 'linkedin'")
+          i.fab.fa-twitter(v-else-if="user.authority === 'twitter'")
+
+        .authservice-logo(v-else)
+
+          // Font-awesome v4
           i.fa.fa-envelope-o(v-if="user.authority === 'email'")
           i.fa.fa-facebook-official(v-else-if="user.authority === 'facebook'")
           i.fa.fa-github(v-else-if="user.authority === 'github'")
@@ -40,7 +54,7 @@
         div(v-if="mayChangePassword")
           br
           br
-          authservice-change-password(v-if="mayChangePassword" :user="user" :demo="demo" :email-token="emailToken")
+          authservice-change-password(v-if="mayChangePassword", :user="user", :demo="demo", :email-token="emailToken")
 
 
       .column.is-8
@@ -49,7 +63,7 @@
           .field(v-if="user.authority === 'email'")
             .label Username
             .control
-              b {{user.username}}
+              | {{user.username}}
           .field
             .columns
               .column.is-6
@@ -65,17 +79,17 @@
             .columns
               .column.is-4
                 .control
-                  input.input(type="text" placeholder="First name" v-model="user.first_name" autocomplete="off" :disabled="!mayUpdateName")
+                  input.input(type="text" placeholder="First name" v-model="user.first_name" autocomplete="off", :disabled="!mayUpdateName")
               .column.is-4
                 .control
-                  input.input(type="text" placeholder="Middle name" v-model="user.middle_name" autocomplete="off" :disabled="!mayUpdateName")
+                  input.input(type="text" placeholder="Middle name" v-model="user.middle_name" autocomplete="off", :disabled="!mayUpdateName")
               .column.is-4
                 .control
-                  input.input(type="text" placeholder="Last name" v-model="user.last_name" autocomplete="off" :disabled="!mayUpdateName")
+                  input.input(type="text" placeholder="Last name" v-model="user.last_name" autocomplete="off", :disabled="!mayUpdateName")
           .field
             .label Full Name
             .control
-              input.input(type="text" placeholder="Fullname" v-model="user.full_name" autocomplete="off" :disabled="!mayUpdateName")
+              input.input(type="text" placeholder="Fullname" v-model="user.full_name" autocomplete="off", :disabled="!mayUpdateName")
 
           //- .field
           //-   .label Client Id

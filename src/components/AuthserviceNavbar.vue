@@ -14,7 +14,7 @@
         strong {{$authservice.user.firstname}}  {{$authservice.user.lastname}}
         //- b-dropdown-item(aria-describedby="header1") Another action
 
-        img(v-if="$authservice.user.avatar" :src="$authservice.user.avatar", alt="")
+        img(v-if="$authservice.user.avatar", :src="$authservice.user.avatar", alt="")
       b-dropdown-item
         router-link(to='/applications') Settings
       b-dropdown-divider
@@ -45,9 +45,9 @@
         b-button(variant="primary" v-on:click="doLogin" tabindex="33") Login
       b-dropdown-divider
       b-dropdown-header
-        b-button.my-button(:size="'sm'" :variant="'link'" v-on:click="setMode('forgot')" tabindex="34") Forgot password
+        b-button.my-button(:size="'sm'", :variant="'link'", v-on:click="setMode('forgot')", tabindex="34") Forgot password
         br
-        b-button(:size="'sm'" :variant="'link'" v-on:click="setMode('register')" tabindex="35") Register
+        b-button(:size="'sm'", :variant="'link'", v-on:click="setMode('register')", tabindex="35") Register
       b-dropdown-divider
       b-dropdown-header
         b-button.my-button(:variant="'primary'" v-on:click="facebookLogin()" tabindex="36") Login with Facebook
@@ -70,7 +70,7 @@
 
         // Username
         b-form-group(v-if="registerRequiresUsername" label="Username" placeholder="Choose a user name")
-          b-form-input(v-model.trim="registerUsername" type="text" v-on:keydown.native="keyhandler" v-on:input="validateUsername" :state="registerUsernameState" autocomplete="off")
+          b-form-input(v-model.trim="registerUsername", type="text", v-on:keydown.native="keyhandler", v-on:input="validateUsername", :state="registerUsernameState", autocomplete="off")
           b-form-feedback#input-feedback
             // This will only be shown if the preceeding input has an invalid state
             | {{registerUsernameError}}
@@ -90,7 +90,7 @@
       b-dropdown-divider
       b-dropdown-header
         b-button(variant="primary" v-on:click="register") Register
-        b-button(:size="'sm'" :variant="'link'" v-on:click="setMode('login')") Cancel
+        b-button(:size="'sm'", :variant="'link'", v-on:click="setMode('login')") Cancel
       //- b-dropdown-header
     //- b-form
 
@@ -107,8 +107,8 @@
       b-dropdown-divider
       b-dropdown-header
         // Should just close the dropdown VVVVV
-        // b-button(:size="'sm'" :variant="'primary'" v-on:click="setMode('login')") Ok
-        b-button(type="submit" :size="'sm'" :variant="'primary'" v-on:click="setMode('login')").btn.btn-default ok
+        // b-button(:size="'sm'", :variant="'primary'", v-on:click="setMode('login')") Ok
+        b-button(type="submit", :size="'sm'", :variant="'primary'", v-on:click="setMode('login')").btn.btn-default ok
     //- b-form
 
     //
@@ -136,7 +136,7 @@
             | &nbsp;&nbsp;
           | Send the Email
         | &nbsp;
-        b-button(:size="'sm'" :variant="'link'" right v-on:click="setMode('login')") Cancel
+        b-button(:size="'sm'", :variant="'link'", right v-on:click="setMode('login')") Cancel
     //- b-dropdown-header
 
     // Message for after the forgot email has been sent
@@ -149,7 +149,7 @@
       b-dropdown-divider
       b-dropdown-header
         // Should just close the dropdown VVVVV
-        b-button(:size="'sm'" :variant="'primary'" v-on:click="setMode('login')") Ok
+        b-button(:size="'sm'", :variant="'primary'", v-on:click="setMode('login')") Ok
     //- div
 
   //- b-nav-item-dropdown

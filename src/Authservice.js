@@ -850,6 +850,53 @@ class Authservice {
   isForgottenPasswordSupported () {
     return this.forgottenPasswordSupported
   }
+
+  getLoginOptions () {
+    return new Promise((resolve, reject) => {
+      // Call the server
+      // console.log('params=', params)
+      const _a = this.getCookie('authservice-'+this.apikey+'-loginOptions')
+      if (_a) {
+        resolve(JSON.parse(_a))
+        return
+      } else {
+        axios({
+          method: 'post',
+          url: this.endpoint() + '/loginOptions',
+          headers: {
+            // 'Authorization': 'Bearer ' + jwt
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+          // ,
+          // data: {
+          //   email: email,
+          //   resume: bounceURL
+          // }
+        })
+          .then(response => {
+            // JSON responses are automatically parsed.
+            if (response.status === 200) {
+              // Email sent successfully
+              this.setCookie('authservice-'+this.apikey+'-loginOptions', JSON.stringify(response.data), 1)
+              resolve(response.data)
+              return
+            } else {
+              reject(NETWORK_ERROR_MSG)
+              return
+            }
+          })
+          .catch(e => {
+            if (!e.response) {
+              // Network error from browser
+              // See https://github.com/axios/axios/issues/383#issuecomment-234079506
+              reject(NETWORK_ERROR_MSG)
+              return
+            }
+          })
+      }
+    })
+  }// - getLoginOptions()
 }
 
 //Authservice.install = install // The imported install()

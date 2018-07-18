@@ -41,6 +41,7 @@ class Authservice {
 
   constructor (options) {
     console.log('&&& Authservice constructor', options)
+    this.protocol = options.protocol ? options.protocol : 'http'
     this.host = options.host ? options.host : 'api.authservice.io'
     this.port = options.port ? options.port : 80
     this.version = options.version ? options.version : 'v2'
@@ -206,8 +207,7 @@ class Authservice {
 
   endpoint () {
     // console.log('endpoint():', this)
-    const protocol = this.protocol ? this.protocol : 'http'
-    const endpoint = protocol + '://' + this.host + ':' + this.port + '/' + this.version + '/' + this.apikey
+    const endpoint = this.protocol + '://' + this.host + ':' + this.port + '/' + this.version + '/' + this.apikey
     return endpoint
   }
 

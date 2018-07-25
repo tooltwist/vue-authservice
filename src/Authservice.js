@@ -838,6 +838,19 @@ class Authservice {
     document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/'
   }// setCookie()
 
+  setCookieByMinutes(cname, cvalue, minutes) {
+    if (cvalue) {
+      console.log('setting cookie (' + cname + ')')
+    } else {
+      console.log('clearing cookie (' + cname + ')')
+    }
+    var d = new Date();
+    d.setTime(d.getTime() + (minutes * 60 * 1000));
+    var expires = 'expires=' + d.toGMTString();
+    console.log(expires)
+    document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
+  }
+
   getCookie (cname) {
     // console.log('getCookie(' + cname + ')')
     var name = cname + "="
@@ -876,7 +889,6 @@ class Authservice {
   getLoginOptions () {
     return new Promise((resolve, reject) => {
       // Call the server
-      // console.log('params=', params)
       const _a = this.getCookie('authservice-'+this.apikey+'-loginOptions')
       if (_a) {
         resolve(JSON.parse(_a))
@@ -890,17 +902,11 @@ class Authservice {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           }
-          // ,
-          // data: {
-          //   email: email,
-          //   resume: bounceURL
-          // }
         })
           .then(response => {
             // JSON responses are automatically parsed.
             if (response.status === 200) {
-              // Email sent successfully
-              this.setCookie('authservice-'+this.apikey+'-loginOptions', JSON.stringify(response.data), 1)
+              this.setCookieByMinutes('authservice-'+this.apikey+'-loginOptions', JSON.stringify(response.data), 10)
               resolve(response.data)
               return
             } else {
